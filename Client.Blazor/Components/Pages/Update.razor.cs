@@ -18,11 +18,14 @@ namespace Client.Blazor.Components.Pages
         [Inject]
         NavigationManager Navigation { get; set; } = null!;
 
+        // models
         StudentForm student = new StudentForm();
-        string? errorMessage;
         List<ClassInfo>? classes;
-        bool success;
 
+        bool success; // use for display alert if update success
+        string? errorMessage;
+
+        // update student
         private async Task HandleOnUpdate()
         {
             var reply = await StudentService.UpdateAsync(new UpdateStudentRequest
@@ -43,6 +46,7 @@ namespace Client.Blazor.Components.Pages
             }
         }
 
+        // load student information to update
         private async Task LoadStudentAsync()
         {
             var reply = await StudentService.GetProfileAsync(new IdRequest { Id = Id});
@@ -61,6 +65,7 @@ namespace Client.Blazor.Components.Pages
             }
         }
 
+        // Load all classes for select class
         private async Task LoadClassesAsync()
         {
             var reply = await ClassService.GetAllClassesInfo(new Shared.Empty());

@@ -19,15 +19,20 @@ namespace Client.Blazor.Components.Pages
         [Inject]
         private NavigationManager Navigation {  get; set; } = null!;
 
+        // models
         private List<StudentProfile>? students;
         private List<ClassInfo>? classes;
+
         private string? errorMessage;
 
         private int pageNumber = 1;
         private int pageSize = 10;
-        int total = 0;
+        int total = 0; // total students in db
+
+        // grpc datacontract for request
         IdRequest searchId = new IdRequest();
 
+        // load students with pagination
         private async Task LoadStudentsAsync()
         {
             var reply = await StudentService.GetWithPaginationAsync(new PaginationRequest
@@ -48,20 +53,7 @@ namespace Client.Blazor.Components.Pages
             }
         }
 
-        private async Task LoadClassesAsync()
-        {
-            var reply = await ClassService.GetAllClassesInfo(new Shared.Empty());
-            if(reply.Classes == null)
-            {
-                errorMessage = reply.Message;
-            }
-            else
-            {
-                classes = reply.Classes;
-                errorMessage = null;
-            }
-        }
-
+        // search student by id
         private async Task SearchById()
         {
             var reply = await StudentService.GetProfileAsync(searchId);
@@ -102,6 +94,7 @@ namespace Client.Blazor.Components.Pages
             await LoadStudentsAsync();
         }
 
+        // delete student by id
         private async Task HandleOnDeleteAsync(int id)
         {
             var reply = await StudentService.DeleteAsync(new IdRequest { Id = id });
@@ -120,6 +113,11 @@ namespace Client.Blazor.Components.Pages
             Navigation.NavigateTo($"/update/{id}");
         }
 
+        private void NavigateToDetails(int id)
+        {
+            Navigation.NavigateTo($"/details/{id}");
+        }
+
         private void HandleSortByName()
         {
             students = students!.OrderBy(s => s.FullName).ToList();
@@ -128,7 +126,6 @@ namespace Client.Blazor.Components.Pages
         protected override async Task OnInitializedAsync()
         {
             await LoadStudentsAsync();
-            await LoadClassesAsync();
         }
     }
 }

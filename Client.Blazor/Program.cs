@@ -10,14 +10,25 @@ namespace Client.Blazor
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            string grpcAddress = builder.Configuration.GetConnectionString("gRPCAddress1")!;
 
             // Add services to the container.
             builder.Services.AddRazorComponents().AddInteractiveServerComponents();
                 
             builder.Services.AddAntDesign();
 
-            AddGrpcService<IStudentService>(builder);
-            AddGrpcService<IClassService>(builder);
+            // Add DI grpc services
+            builder.Services.AddScoped(provider =>
+            {
+                var channel = GrpcChannel.ForAddress(grpcAddress);
+                return channel.CreateGrpcService<IStudentService>();
+            });
+
+            builder.Services.AddScoped(provider =>
+            {
+                var channel = GrpcChannel.ForAddress(grpcAddress);
+                return channel.CreateGrpcService<IClassService>();
+            });
 
             var app = builder.Build();
 
@@ -37,17 +48,6 @@ namespace Client.Blazor
             app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
             app.Run();
-        }
-
-        private static void AddGrpcService<T>(WebApplicationBuilder builder) where T : class
-        {
-            string grpcChannel = builder.Configuration.GetConnectionString("GrpcChannel")!;
-
-            builder.Services.AddScoped(provider =>
-            {
-                var channel = GrpcChannel.ForAddress(grpcChannel);
-                return channel.CreateGrpcService<T>();
-            });
         }
     }
 }

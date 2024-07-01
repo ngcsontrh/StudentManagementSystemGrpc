@@ -36,10 +36,10 @@
     DataSource="@students" 
     RowKey="s => s.Id"
     PageIndex="pageNumber"
-    Loading="(students == null) ? true : false"
+    Loading="(students == null)"
     Total="total"
     PageSize="pageSize"
-    HidePagination="(total <= pageSize) ? true : false"
+    HidePagination="(total <= pageSize)"
     OnPageIndexChange="HandlePageIndexChange"
     OnPageSizeChange="HandlePageSizeChange">
 
@@ -65,6 +65,7 @@
                         CancelText="No">
                 <Button>Update</Button>
             </Popconfirm>
+            <Button Type="@ButtonType.Dashed" OnClick="()=> NavigateToDetails(data.Id)">Details</Button>
         </ActionColumn>
     </ChildContent>
 </Table>

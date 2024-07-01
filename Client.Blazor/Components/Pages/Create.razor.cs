@@ -16,10 +16,13 @@ namespace Client.Blazor.Components.Pages
         [Inject]
         NavigationManager Navigation { get; set; } = null!;
 
+        // models
         StudentForm student = new StudentForm();
-        string? errorMessage;
         List<ClassInfo>? classes;
 
+        string? errorMessage;
+
+        // Create new student event
         private async Task HandleOnCreateAsync()
         {
             var reply = await StudentService.CreateAsync(new CreateStudentRequest
@@ -39,6 +42,7 @@ namespace Client.Blazor.Components.Pages
             }
         }
 
+        // Load all classes for select class
         private async Task LoadClassesAsync()
         {
             var reply = await ClassService.GetAllClassesInfo(new Shared.Empty());

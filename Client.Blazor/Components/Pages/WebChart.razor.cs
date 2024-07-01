@@ -11,15 +11,20 @@ namespace Client.Blazor.Components.Pages
         [Inject]
         public IStudentService StudentService { get; set; } = null!;
 
-        private string? errorMessage;
+        // models 
         private List<StudentProfile>? students;
 
-        private List<StudentAgeChartModel> data1 = null!;
-        private PieConfig config1 = null!;
+        private string? errorMessage;
 
+        // model datatype for charts
+        private List<StudentAgeChartModel> data1 = null!;
         private List<ClassChartModel> data2 = null!;
+
+        // config charts
+        private PieConfig config1 = null!;
         private PieConfig config2 = null!;
 
+        // load all students for analysis.
         private async Task LoadStudentsData()
         {
             var studentReply = await StudentService.GetAllProfilesAsync(new Shared.Empty());
