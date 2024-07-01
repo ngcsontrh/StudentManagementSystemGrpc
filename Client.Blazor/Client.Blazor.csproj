@@ -8,6 +8,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="AntDesign" Version="0.19.3" />
+		<PackageReference Include="AntDesign.Charts" Version="0.5.2" />
 		<PackageReference Include="Grpc.Net.Client" Version="2.63.0" />
 		<PackageReference Include="Grpc.Net.Client.Web" Version="2.63.0" />
 		<PackageReference Include="protobuf-net.Grpc" Version="1.1.1" />

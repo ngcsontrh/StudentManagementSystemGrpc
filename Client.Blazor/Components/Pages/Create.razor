@@ -1,4 +1,6 @@
 ﻿@page "/create"
+@using Client.Blazor.Models
+@using Title = AntDesign.Charts.Title
 @rendermode InteractiveServer
 
 @if (errorMessage != null)
@@ -13,8 +15,9 @@
     <Form Model="@student"
           OnFinish="HandleOnCreateAsync"
           ValidateMode=@FormValidateMode.Complex
+          Class="mt-5"
           LabelColSpan="8"
-          WrapperColSpan="16">
+          WrapperColSpan="10">
         <FormItem Label="User Name">
             <Input @bind-Value="@context.FullName" />
         </FormItem>

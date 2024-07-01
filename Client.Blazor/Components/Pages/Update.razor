@@ -1,5 +1,4 @@
 ﻿@page "/update/{Id:int}"
-@page "/update"
 @rendermode InteractiveServer
 
 @if (errorMessage != null)
@@ -9,10 +8,16 @@
            Type="@AlertType.Error" />
 }
 
+@if(success)
+{
+    <Alert Type="@AlertType.Success" Class="my-4" Message="Đã cập nhật thông tin thành công" />
+}
+
 @if (classes != null)
 {
     <Form Model="@student"
           OnFinish="() => HandleOnUpdate()"
+          Class="mt-4"
           ValidateMode=@FormValidateMode.Complex
           LabelColSpan="8"
           WrapperColSpan="16">

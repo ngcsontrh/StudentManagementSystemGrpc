@@ -21,6 +21,7 @@ namespace Client.Blazor.Components.Pages
         StudentForm student = new StudentForm();
         string? errorMessage;
         List<ClassInfo>? classes;
+        bool success;
 
         private async Task HandleOnUpdate()
         {
@@ -34,7 +35,7 @@ namespace Client.Blazor.Components.Pages
             });
             if (reply.Success)
             {
-                Navigation.NavigateTo(Navigation.Uri, true);
+                success = true;
             }
             else
             {

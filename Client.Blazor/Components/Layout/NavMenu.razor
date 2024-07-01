@@ -1,18 +1,20 @@
-﻿@inject NavigationManager Navigation;
-
-<Sider Breakpoint="@BreakpointType.Lg"
+﻿<Sider Breakpoint="@BreakpointType.Lg"
        CollapsedWidth="64"
        @bind-Collapsed=@collapsed
     >
     <div class="logo" />
     <Menu Theme="MenuTheme.Dark" Mode="MenuMode.Inline">
-        <MenuItem Key="1" @onclick="NavigateToIndex" RouterLink="/">
+        <MenuItem Key="1" RouterLink="/">
             <Icon Type="home" Theme="outline" />
-            <span>Add New Student</span>
+            <span>Home</span>
         </MenuItem>
-        <MenuItem Key="2" @onclick="NavigateToCreatePage" RouterLink="create">
+        <MenuItem Key="2" RouterLink="/create">
             <Icon Type="user-add" Theme="outline" />
             <span>Add New Student</span>
+        </MenuItem>
+        <MenuItem Key="3" RouterLink="/chart">
+            <Icon Type="bar-chart" Theme="outline" />
+            <span>Chart</span>
         </MenuItem>
     </Menu>
 </Sider>
@@ -24,17 +26,3 @@
         margin: 16px;
     }
 </style>
-
-@code {
-    bool collapsed;
-
-    void NavigateToCreatePage()
-    {
-        Navigation.NavigateTo("create");
-    }
-
-    void NavigateToIndex()
-    {
-        Navigation.NavigateTo(Navigation.Uri, true);
-    }
-}
