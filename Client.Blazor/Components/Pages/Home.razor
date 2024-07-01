@@ -1,0 +1,71 @@
+﻿@page "/"
+@page "/students"
+@using AntDesign
+@using Grpc.Net.Client
+@using ProtoBuf.Grpc.Client
+@using Shared
+@rendermode InteractiveServer
+
+<PageTitle>Home</PageTitle>
+
+<div class="d-flex justify-content-around align-items-center">
+    <Form Model="@searchId"
+          OnFinish="SearchById"
+          Class="d-flex gap-2 mt-4 justify-content-center align-items-center">
+        <FormItem Label="Search by Id">
+            <Input @bind-Value="@context.Id" />
+        </FormItem>
+        <FormItem >
+            <Button Type="@ButtonType.Primary" HtmlType="submit">
+                Search
+            </Button>
+        </FormItem>
+    </Form>
+    <Button OnClick="LoadStudentsAsync">Reload Page</Button>
+    <Button OnClick="HandleSortByName" >Sort by Name</Button>
+</div>
+
+@if(errorMessage != null)
+{
+    <Alert Message="Error"
+           Description="@errorMessage"
+           Type="@AlertType.Error" />    
+}
+
+
+<Table 
+    DataSource="@students" 
+    RowKey="s => s.Id"
+    PageIndex="pageNumber"
+    Loading="(students == null) ? true : false"
+    Total="total"
+    PageSize="pageSize"
+    HidePagination="(total <= pageSize) ? true : false"
+    OnPageIndexChange="HandlePageIndexChange"
+    OnPageSizeChange="HandlePageSizeChange">
+
+    <ChildContent Context="data">
+        <PropertyColumn Property="s => s.Id" Title="Id" />
+        <PropertyColumn Property="s => s.FullName" Title="Full Name" />
+        <PropertyColumn Property="s => s.Birthday" Title="Birthday" Format="dd/MM/yyyy" />
+        <PropertyColumn Property="s => s.Address" Title="Address" />
+        <PropertyColumn Property="s => s.ClassName" Title="Class Name" />
+        <ActionColumn Title="Action" Class="d-flex justify-content-center align-items-center gap-2">
+            <Popconfirm Title="Sure to delete?"
+                        OnConfirm="()=> HandleOnDeleteAsync(data.Id)"
+                        OkText="Yes"
+                        CancelText="No">
+                <Button Danger>
+                    Delete
+                </Button>
+            </Popconfirm>
+
+            <Popconfirm Title="Sure to update?"
+                        OnConfirm="()=> NavigateToUpdate(data.Id)"
+                        OkText="Yes"
+                        CancelText="No">
+                <Button>Update</Button>
+            </Popconfirm>
+        </ActionColumn>
+    </ChildContent>
+</Table>

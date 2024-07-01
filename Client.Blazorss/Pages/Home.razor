@@ -1,0 +1,31 @@
+﻿@page "/"
+@page "/students"
+@using AntDesign
+@using Grpc.Net.Client
+@using Microsoft.AspNetCore.Components.Web
+@using ProtoBuf.Grpc.Client
+@using Shared
+
+<PageTitle>Home</PageTitle>
+
+<Table DataSource="@students" RowKey="s => s.Id">
+    <PropertyColumn Property="s => s.Id" Title="Id" />
+    <PropertyColumn Property="s => s.FullName" Title="Full Name" />
+    <PropertyColumn Property="s => s.Birthday" Title="Birthday" Format="dd-MM-yyyy" />
+    <PropertyColumn Property="s => s.Address" Title="Address" />
+    <PropertyColumn Property="s => s.ClassId" Title="Class Id" />
+    <PropertyColumn Property="s => s.ClassName" Title="Class Name" />
+</Table>
+
+@code {
+    private List<StudentResponse> students;
+
+    [Inject]
+    public IStudentService StudentService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Gọi phương thức gRPC để lấy danh sách sinh viên
+        students = await StudentService.GetAllStudentsAsync();
+    }
+}

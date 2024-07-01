@@ -1,0 +1,40 @@
+﻿@inject NavigationManager Navigation;
+
+<Sider Breakpoint="@BreakpointType.Lg"
+       CollapsedWidth="64"
+       @bind-Collapsed=@collapsed
+    >
+    <div class="logo" />
+    <Menu Theme="MenuTheme.Dark" Mode="MenuMode.Inline">
+        <MenuItem Key="1" @onclick="NavigateToIndex" RouterLink="/">
+            <Icon Type="home" Theme="outline" />
+            <span>Add New Student</span>
+        </MenuItem>
+        <MenuItem Key="2" @onclick="NavigateToCreatePage" RouterLink="create">
+            <Icon Type="user-add" Theme="outline" />
+            <span>Add New Student</span>
+        </MenuItem>
+    </Menu>
+</Sider>
+
+<style>
+    .logo {
+        height: 32px;
+        background: rgba(255, 255, 255, 0.2);
+        margin: 16px;
+    }
+</style>
+
+@code {
+    bool collapsed;
+
+    void NavigateToCreatePage()
+    {
+        Navigation.NavigateTo("create");
+    }
+
+    void NavigateToIndex()
+    {
+        Navigation.NavigateTo(Navigation.Uri, true);
+    }
+}
