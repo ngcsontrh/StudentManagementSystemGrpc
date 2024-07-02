@@ -9,7 +9,7 @@ namespace Client.Blazor.Models
         [Required] public string FullName { get; set; } = null!;
         [Required] public DateTime Birthday { get; set; } = DateTime.Now;
         [Required] public string Address { get; set; } = null!;
-        [Required] public int ClassId { get; set; }
+        [Required] public int? ClassId { get; set; }
         public string ClassName { get; set; } = null!;
     }
 }

@@ -1,0 +1,63 @@
+﻿@rendermode InteractiveServer
+@using Client.Blazor.Models
+@using Microsoft.AspNetCore.Components
+@using Shared
+
+<Drawer Visible="@IsVisible" Placement="top" Title="@("Searched Student")" OnClose="ClosePopup" Height="500">
+    @if (errorMessage != null)
+    {
+        <Alert Message="Error" Description="@errorMessage" Type="error" />
+    }
+
+    @if (Students != null)
+    {
+        <Table DataSource="@Students"
+               RowKey="s => s.Id"
+               PageIndex="pageNumber"
+               Total="TotalStudent"
+               PageSize="pageSize"
+               HidePagination="(TotalStudent <= pageSize)"
+               OnPageIndexChange="HandlePageIndexChange"
+               OnPageSizeChange="HandlePageSizeChange">
+
+            <ChildContent Context="data">
+                <PropertyColumn Property="s => s.Id" Title="Id" />
+                <PropertyColumn Property="s => s.FullName" Title="Full Name" />
+                <PropertyColumn Property="s => s.Birthday" Title="Birthday" Format="dd/MM/yyyy" />
+                <PropertyColumn Property="s => s.Address" Title="Address" />
+                <PropertyColumn Property="s => s.ClassId" Title="Class Id" />
+                <PropertyColumn Property="s => s.ClassName" Title="Class Name" />
+            </ChildContent>
+        </Table>
+    }
+</Drawer>
+
+@*   <Form Model="@studentFields"
+        OnFinish="HandleOnSearchAsync"
+        ValidateMode="@FormValidateMode.Complex"
+        RequiredMark="@FormRequiredMark.Required">
+        <FormItem Label="Id">
+    <Input @bind-Value="studentFields.Id" />
+        </FormItem>
+    <FormItem Label="Full Name">
+    <Input @bind-Value="studentFields.Name" />
+    </FormItem>
+    <FormItem Label="Start Date">
+    <DatePicker @bind-Value="studentFields.StartDate" Format="dd/MM/yyyy" />
+    </FormItem>
+    <FormItem Label="End Date" >
+    <DatePicker @bind-Value="studentFields.StartDate" Format="dd/MM/yyyy" />
+    </FormItem>
+    <FormItem Label="Address">
+    <Input @bind-Value="studentFields.Address" />
+    </FormItem>
+    <FormItem Label="Class">
+        <Select DataSource="@classes"
+            @bind-Value="studentFields.ClassId"
+                ItemValue="c => c.Id"
+                ItemLabel="c => c.Name"
+                Style="width: 200px">
+        </Select>
+    </FormItem>
+<Button Type="primary" HtmlType="submit">Submit</Button>
+</Form> *@

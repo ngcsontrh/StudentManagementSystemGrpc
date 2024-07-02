@@ -6,6 +6,12 @@
 @rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
+
+<div>
+    <Button Type="primary" OnClick="OpenCreatePopup">Add new student</Button>
+    <SearchField />
+</div>
+
 <div class="float-end">
     <Dropdown>
         <Overlay>
@@ -36,7 +42,7 @@
             </Button>
         </ChildContent>
     </Dropdown>
-
+    
     <Button OnClick="LoadStudentsAsync">Reload Page</Button>
 </div>
 
@@ -46,7 +52,6 @@
            Description="@errorMessage"
            Type="@AlertType.Error" />    
 }
-<Button Type="primary" OnClick="OpenCreatePopup">Add new student</Button>
 
 <Table 
     DataSource="@students" 

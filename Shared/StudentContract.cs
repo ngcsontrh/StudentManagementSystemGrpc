@@ -1,4 +1,5 @@
 ﻿using ProtoBuf.Grpc;
+using Shared.Models;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -30,6 +31,34 @@ namespace Shared
 
         [OperationContract]
         Task<MultipleStudentProfilesReply> GetWithPaginationAsync(PaginationRequest request, CallContext context = default);
+
+        [OperationContract] // bug
+        Task<MultipleStudentProfilesReply> SearchAsync(SearchRequest request, CallContext callContext = default);
+
+        [OperationContract]
+        Task<MultipleStudentProfilesReply> GetProfileByNameAsync(NameRequest request, CallContext callContext = default);
+
+        [OperationContract]
+        Task<MultipleStudentProfilesReply> GetProfileByAddressAsync(AddressRequest request, CallContext callContext = default);
+
+        [OperationContract]
+        Task<MultipleStudentProfilesReply> GetProfileByClassAsync(IdRequest request, CallContext callContext = default);
+
+        [OperationContract]
+        Task<MultipleStudentProfilesReply> GetProfileByDateAsync(DateRequest request, CallContext callContext = default);
+    }
+
+    // bug
+    [DataContract]
+    public class SearchRequest
+    {
+        [DataMember(Order = 1)] public SearchStudentModel StudentFields { get; set; } = null!;
+    }
+
+    [DataContract]
+    public class AddressRequest
+    {
+        [DataMember(Order = 1)] public string Address { get; set; } = null!;
     }
 
     [DataContract]

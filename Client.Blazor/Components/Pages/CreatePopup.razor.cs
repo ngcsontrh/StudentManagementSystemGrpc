@@ -65,7 +65,7 @@ namespace Client.Blazor.Components.Pages
                 FullName = studentProfile.FullName,
                 Birthday = studentProfile.Birthday,
                 Address = studentProfile.Address,
-                ClassId = studentProfile.ClassId
+                ClassId = studentProfile.ClassId!.Value
             });
             if (reply.Success)
             {

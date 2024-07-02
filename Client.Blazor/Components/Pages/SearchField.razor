@@ -1,0 +1,85 @@
+﻿@rendermode InteractiveServer
+
+<div>
+    <Dropdown>
+        <Overlay>
+            <Menu>
+                <MenuItem OnClick="OpenSearchByIdField">
+                    <Text>Search by Id</Text>
+                </MenuItem>
+                <MenuItem OnClick="OpenSearchByNameField">
+                    <Text>Search by Name</Text>
+                </MenuItem>
+                <MenuItem OnClick="OpenSearchByDateField">
+                    <Text>Search by Date</Text>
+                </MenuItem>
+                <MenuItem OnClick="OpenSearchByAddressField">
+                    <Text>Search by Address</Text>
+                </MenuItem>
+                <MenuItem OnClick="OpenSearchByClassField">
+                    <Text>Search by Class</Text>
+                </MenuItem>
+            </Menu>
+        </Overlay>
+        <ChildContent>
+            <Button>
+                Search by
+            </Button>
+        </ChildContent>
+    </Dropdown>
+    <Form Model="@studentFields"
+          OnFinish="HandleOnSearchAsync"
+          ValidateMode="@FormValidateMode.Complex"
+          RequiredMark="@FormRequiredMark.Required">
+        @if (isOpenSBId)
+        {
+            <FormItem Label="Id">
+                <Input @bind-Value="studentFields.Id" />
+            </FormItem>
+        }
+
+        @if (isOpenSBName)
+        {
+            <FormItem Label="Name">
+                <Input @bind-Value="studentFields.Name" />
+            </FormItem>
+        }
+
+        @if (isOpenSBDate)
+        {
+            <FormItem Label="Start Date">
+                <DatePicker @bind-Value="studentFields.StartDate" Format="dd/MM/yyyy" />
+            </FormItem>
+            <FormItem Label="End Date">
+                <DatePicker @bind-Value="studentFields.EndDate" Format="dd/MM/yyyy" />
+            </FormItem>
+        }
+
+        @if (isOpenSBAddress)
+        {
+            <FormItem Label="Address">
+                <Input @bind-Value="studentFields.Address" />
+            </FormItem>
+        }
+
+        @if (isOpenSBClass)
+        {
+            <FormItem Label="Class">
+                <Select DataSource="@classes"
+                        @bind-Value="@context.ClassId"
+                        ItemValue="c => c.Id"
+                        ItemLabel="c => c.Name"
+                        Style="width: 200px">
+                </Select>
+            </FormItem>
+        }
+        @if(isOpenSBId || isOpenSBName || isOpenSBAddress || isOpenSBDate || isOpenSBClass)
+        {
+            <Button Type="primary" HtmlType="submit">Search</Button>
+        }
+    </Form>
+</div>
+@if(students != null)
+{
+    <SearchPopup IsVisible="visible" Students="students" TotalStudent="students!.Count" OnClose="CloseSearchPopup" />
+}

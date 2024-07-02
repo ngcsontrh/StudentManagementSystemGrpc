@@ -162,27 +162,27 @@ namespace Server.Services
             return reply;
         }
 
-        public async Task<MultipleStudentProfilesReply> GetWithPaginationAsync(PaginationRequest request, CallContext context = default)
+        public async Task<MultipleStudentProfilesReply> GetProfileByAddressAsync(AddressRequest request, CallContext callContext = default)
         {
             MultipleStudentProfilesReply reply = new MultipleStudentProfilesReply();
             try
             {
-                List<Student>? students = await _studentRepository.GetWithPaginationAsync(request.PageNumber, request.PageSize);
-                int count = await _studentRepository.CountAsync();
+                List<Student>? students = await _studentRepository.GetByAddressAsync(request.Address)!;
+                int count = students.Count;
 
-                if(count == 0)
+                if (count == 0)
                 {
                     throw new Exception("There is no student in database");
                 }
 
-                if(students == null || students.Count == 0)
+                if (students == null || students.Count == 0)
                 {
                     throw new Exception("There is no student in this page");
                 }
 
                 reply.Count = count;
                 reply.Students = new List<StudentProfile>();
-                foreach(var student in students)
+                foreach (var student in students)
                 {
                     reply.Students.Add(new StudentProfile
                     {
@@ -193,6 +193,206 @@ namespace Server.Services
                         ClassId = student.StudentClass.Id,
                         ClassName = student.StudentClass.Name
                     });
+                }
+            }
+            catch (Exception ex)
+            {
+                reply.Message = ex.Message;
+            }
+
+            return reply;
+        }
+
+        public async Task<MultipleStudentProfilesReply> GetProfileByClassAsync(IdRequest request, CallContext callContext = default)
+        {
+            MultipleStudentProfilesReply reply = new MultipleStudentProfilesReply();
+            try
+            {
+                List<Student>? students = await _studentRepository.GetByClassAsync(request.Id)!;
+                int count = students.Count;
+
+                if (count == 0)
+                {
+                    throw new Exception("There is no student in database");
+                }
+
+                if (students == null || students.Count == 0)
+                {
+                    throw new Exception("There is no student in this page");
+                }
+
+                reply.Count = count;
+                reply.Students = new List<StudentProfile>();
+                foreach (var student in students)
+                {
+                    reply.Students.Add(new StudentProfile
+                    {
+                        Id = student.Id,
+                        FullName = student.FullName,
+                        Birthday = student.Birthday,
+                        Address = student.Address,
+                        ClassId = student.StudentClass.Id,
+                        ClassName = student.StudentClass.Name
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                reply.Message = ex.Message;
+            }
+
+            return reply;
+        }
+
+        public async Task<MultipleStudentProfilesReply> GetProfileByDateAsync(DateRequest request, CallContext callContext = default)
+        {
+            MultipleStudentProfilesReply reply = new MultipleStudentProfilesReply();
+            try
+            {
+                List<Student>? students = await _studentRepository.GetByDateAsync(request.DateStart, request.DateEnd)!;
+                int count = students.Count;
+
+                if (count == 0)
+                {
+                    throw new Exception("There is no student in database");
+                }
+
+                if (students == null || students.Count == 0)
+                {
+                    throw new Exception("There is no student in this page");
+                }
+
+                reply.Count = count;
+                reply.Students = new List<StudentProfile>();
+                foreach (var student in students)
+                {
+                    reply.Students.Add(new StudentProfile
+                    {
+                        Id = student.Id,
+                        FullName = student.FullName,
+                        Birthday = student.Birthday,
+                        Address = student.Address,
+                        ClassId = student.StudentClass.Id,
+                        ClassName = student.StudentClass.Name
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                reply.Message = ex.Message;
+            }
+
+            return reply;
+        }
+
+        public async Task<MultipleStudentProfilesReply> GetProfileByNameAsync(NameRequest request, CallContext callContext = default)
+        {
+            MultipleStudentProfilesReply reply = new MultipleStudentProfilesReply();
+            try
+            {
+                List<Student>? students = await _studentRepository.GetByNameAsync(request.Name)!;
+                int count = await _studentRepository.CountAsync();
+
+                if (count == 0)
+                {
+                    throw new Exception("There is no student in database");
+                }
+
+                if (students == null || students.Count == 0)
+                {
+                    throw new Exception("There is no student in this page");
+                }
+
+                reply.Count = count;
+                reply.Students = new List<StudentProfile>();
+                foreach (var student in students)
+                {
+                    reply.Students.Add(new StudentProfile
+                    {
+                        Id = student.Id,
+                        FullName = student.FullName,
+                        Birthday = student.Birthday,
+                        Address = student.Address,
+                        ClassId = student.StudentClass.Id,
+                        ClassName = student.StudentClass.Name
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                reply.Message = ex.Message;
+            }
+
+            return reply;
+        }
+
+        public async Task<MultipleStudentProfilesReply> GetWithPaginationAsync(PaginationRequest request, CallContext context = default)
+        {
+            MultipleStudentProfilesReply reply = new MultipleStudentProfilesReply();
+            try
+            {
+                List<Student>? students = await _studentRepository.GetWithPaginationAsync(request.PageNumber, request.PageSize);
+                int count = await _studentRepository.CountAsync();
+
+                if (count == 0)
+                {
+                    throw new Exception("There is no student in database");
+                }
+
+                if (students == null || students.Count == 0)
+                {
+                    throw new Exception("There is no student in this page");
+                }
+
+                reply.Count = count;
+                reply.Students = new List<StudentProfile>();
+                foreach (var student in students)
+                {
+                    reply.Students.Add(new StudentProfile
+                    {
+                        Id = student.Id,
+                        FullName = student.FullName,
+                        Birthday = student.Birthday,
+                        Address = student.Address,
+                        ClassId = student.StudentClass.Id,
+                        ClassName = student.StudentClass.Name
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                reply.Message = ex.Message;
+            }
+
+            return reply;
+        }
+
+        public async Task<MultipleStudentProfilesReply> SearchAsync(SearchRequest request, CallContext callContext = default)
+        {
+            var reply = new MultipleStudentProfilesReply();
+            try
+            {
+                List<Student>? students = await _studentRepository.SearchAsync(request.StudentFields)!;
+                if(students == null || students.Count == 0)
+                {
+                    throw new Exception("There is no students");
+                }
+                else
+                {
+                    reply.Students = new List<StudentProfile>();
+                    reply.Count = reply.Students.Count;
+                    foreach (var student in students)
+                    {
+                        reply.Students.Add(new StudentProfile
+                        {
+                            Id = student.Id,
+                            FullName = student.FullName,
+                            Birthday = student.Birthday,
+                            Address = student.Address,
+                            ClassId = student.StudentClass.Id,
+                            ClassName = student.StudentClass.Name
+                        });
+                    }
                 }
             }
             catch (Exception ex)

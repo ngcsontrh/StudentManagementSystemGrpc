@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ProtoBuf.Grpc.Client;
 using Shared;
+using Shared.Models;
 
 namespace Client.Blazor.Components.Pages
 {
@@ -21,8 +22,9 @@ namespace Client.Blazor.Components.Pages
         private NavigationManager Navigation {  get; set; } = null!;
 
         // models
-        private List<StudentProfileModel>? students;
         private StudentProfileModel student = null!;
+        private List<StudentProfileModel>? students;
+        
         private int studentDetailsId;
 
         private string? errorMessage;
@@ -97,32 +99,6 @@ namespace Client.Blazor.Components.Pages
             }
         }
 
-        // search student by id
-        private async Task SearchById(int id)
-        {
-            var reply = await StudentService.GetProfileAsync(new IdRequest { Id = id});
-            if(reply.Student == null)
-            {
-                errorMessage = reply.Message;
-                students = null;
-                total = 0;
-            }
-            else
-            {
-                total = 1;
-                students!.Clear();
-                students.Add(new StudentProfileModel
-                {
-                    Id = reply.Student.Id,
-                    FullName = reply.Student.FullName,
-                    Birthday = reply.Student.Birthday,
-                    Address = reply.Student.Address,
-                    ClassId = reply.Student.ClassId,
-                    ClassName = reply.Student.ClassName,
-                });
-                errorMessage = null;
-            }
-        }
 
         private async Task HandlePageIndexChange(PaginationEventArgs args)
         {
@@ -148,16 +124,6 @@ namespace Client.Blazor.Components.Pages
             {
                 errorMessage = reply.Message;
             }
-        }
-
-        private void NavigateToUpdate(int id)
-        {
-            Navigation.NavigateTo($"/update/{id}");
-        }
-
-        private void NavigateToDetails(int id)
-        {
-            Navigation.NavigateTo($"/details/{id}");
         }
 
         private void HandleSortByName()
