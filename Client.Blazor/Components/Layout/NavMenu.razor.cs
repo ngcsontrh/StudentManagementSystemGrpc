@@ -9,11 +9,6 @@ namespace Client.Blazor.Components.Layout
         [Inject]
         NavigationManager Navigation { get; set; } = null!;
 
-        void NavigateToCreatePage()
-        {
-            Navigation.NavigateTo("create");
-        }
-
         void NavigateToIndex()
         {
             Navigation.NavigateTo(Navigation.Uri, true);

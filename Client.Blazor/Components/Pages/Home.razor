@@ -6,22 +6,38 @@
 @rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
-
-<div class="d-flex justify-content-around align-items-center">
-    <Form Model="@searchId"
-          OnFinish="SearchById"
-          Class="d-flex gap-2 mt-4 justify-content-center align-items-center">
-        <FormItem Label="Search by Id">
-            <Input @bind-Value="@context.Id" />
-        </FormItem>
-        <FormItem >
-            <Button Type="@ButtonType.Primary" HtmlType="submit">
-                Search
+<div class="float-end">
+    <Dropdown>
+        <Overlay>
+            <Menu>
+                <MenuItem OnClick="HandleSortById">
+                    <Text>Sort by Id</Text>
+                </MenuItem>
+                <MenuItem OnClick="HandleSortByName">                   
+                    <Text>Sort by Name</Text>
+                </MenuItem>
+                <MenuItem OnClick="HandleSortByBirthday">
+                    <Text>Sort by Birthday</Text>
+                </MenuItem>
+                <MenuItem OnClick="HandleSortByAddress">
+                    <Text>Sort by Address</Text>
+                </MenuItem>
+                <MenuItem OnClick="HandleSortByClassId">
+                    <Text>Sort by Class Id</Text>
+                </MenuItem>
+                <MenuItem OnClick="HandleSortByClassName">
+                    <Text>Sort by Class Name</Text>
+                </MenuItem>
+            </Menu>
+        </Overlay>
+        <ChildContent>
+            <Button>
+                Sort by <Icon Type="caret-down" Theme="outline" />
             </Button>
-        </FormItem>
-    </Form>
+        </ChildContent>
+    </Dropdown>
+
     <Button OnClick="LoadStudentsAsync">Reload Page</Button>
-    <Button OnClick="HandleSortByName" >Sort by Name</Button>
 </div>
 
 @if(errorMessage != null)
@@ -30,7 +46,7 @@
            Description="@errorMessage"
            Type="@AlertType.Error" />    
 }
-
+<Button Type="primary" OnClick="OpenCreatePopup">Add new student</Button>
 
 <Table 
     DataSource="@students" 
@@ -48,6 +64,7 @@
         <PropertyColumn Property="s => s.FullName" Title="Full Name" />
         <PropertyColumn Property="s => s.Birthday" Title="Birthday" Format="dd/MM/yyyy" />
         <PropertyColumn Property="s => s.Address" Title="Address" />
+        <PropertyColumn Property="s => s.ClassId" Title="Class Id" />
         <PropertyColumn Property="s => s.ClassName" Title="Class Name" />
         <ActionColumn Title="Action" Class="d-flex justify-content-center align-items-center gap-2">
             <Popconfirm Title="Sure to delete?"
@@ -59,13 +76,12 @@
                 </Button>
             </Popconfirm>
 
-            <Popconfirm Title="Sure to update?"
-                        OnConfirm="()=> NavigateToUpdate(data.Id)"
-                        OkText="Yes"
-                        CancelText="No">
-                <Button>Update</Button>
-            </Popconfirm>
-            <Button Type="@ButtonType.Dashed" OnClick="()=> NavigateToDetails(data.Id)">Details</Button>
+            <Button OnClick="() => OpenUpdatePopup(data)">Update</Button>
+            <Button OnClick="() => OpenDetailsPopup(data.Id)">Details</Button>
         </ActionColumn>
     </ChildContent>
 </Table>
+
+<UpdatePopup IsVisible ="isOpenUpdatePopup" StudentProfile="student" ReloadStudents="LoadStudentsAsync" OnClose="CloseUpdatePopup"/>
+<DetailsPopup IsVisible="isOpenDetailsPopup" Id="studentDetailsId" OnClose="CloseDetailsPopup"/>
+<CreatePopup IsVisible="isOpenCreatePopup" ReloadStudents="LoadStudentsAsync" OnClose="CloseCreatePopup" />

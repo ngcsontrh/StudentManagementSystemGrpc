@@ -1,0 +1,27 @@
+﻿@using Client.Blazor.Models
+@using Microsoft.AspNetCore.Components
+@using Shared
+@rendermode InteractiveServer
+
+<Drawer Visible="@IsVisible" Placement="right" Title="@("Details")" OnClose="ClosePopup" Width="700">
+    @if (errorMessage != null)
+    {
+        <Alert Message="Error" Description="@errorMessage" Type="error" />
+    }
+
+    @if (studentDetails != null)
+    {
+        <Descriptions Class="d-flex flex-column">
+            <DescriptionsItem LabelStyle="font-weight: bold;" Title="Id">@studentDetails.Id</DescriptionsItem>
+            <DescriptionsItem LabelStyle="font-weight: bold;" Title="Full Name">@studentDetails.FullName</DescriptionsItem>
+            <DescriptionsItem LabelStyle="font-weight: bold;" Title="Birthday">@studentDetails.Birthday</DescriptionsItem>
+            <DescriptionsItem LabelStyle="font-weight: bold;" Title="Address">@studentDetails.Address</DescriptionsItem>
+            <DescriptionsItem LabelStyle="font-weight: bold;" Title="Class Id">@studentDetails.ClassId</DescriptionsItem>
+            <DescriptionsItem LabelStyle="font-weight: bold;" Title="Class Name">@studentDetails.ClassName</DescriptionsItem>
+            <DescriptionsItem LabelStyle="font-weight: bold;" Title="Class Subject">@studentDetails.ClassSubject</DescriptionsItem>
+            <DescriptionsItem LabelStyle="font-weight: bold;" Title="Teacher Id">@studentDetails.TeacherId</DescriptionsItem>
+            <DescriptionsItem LabelStyle="font-weight: bold;" Title="Teacher Name">@studentDetails.TeacherFullName</DescriptionsItem>
+            <DescriptionsItem LabelStyle="font-weight: bold;" Title="Teacher Birthday">@studentDetails.TeacherBirthday</DescriptionsItem>
+        </Descriptions>
+    }
+</Drawer>

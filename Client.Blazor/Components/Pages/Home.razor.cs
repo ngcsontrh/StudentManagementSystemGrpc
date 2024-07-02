@@ -1,4 +1,5 @@
 ﻿using AntDesign;
+using Client.Blazor.Models;
 using Grpc.Net.Client;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -20,8 +21,9 @@ namespace Client.Blazor.Components.Pages
         private NavigationManager Navigation {  get; set; } = null!;
 
         // models
-        private List<StudentProfile>? students;
-        private List<ClassInfo>? classes;
+        private List<StudentProfileModel>? students;
+        private StudentProfileModel student = null!;
+        private int studentDetailsId;
 
         private string? errorMessage;
 
@@ -29,8 +31,42 @@ namespace Client.Blazor.Components.Pages
         private int pageSize = 10;
         int total = 0; // total students in db
 
-        // grpc datacontract for request
-        IdRequest searchId = new IdRequest();
+        bool isOpenUpdatePopup = false; // true if open update
+        bool isOpenDetailsPopup = false; // true if open details
+        bool isOpenCreatePopup = false;
+
+        private void OpenUpdatePopup(StudentProfileModel student)
+        {
+            isOpenUpdatePopup = true;
+            this.student = student;
+        }
+
+        private void OpenCreatePopup()
+        {
+            isOpenCreatePopup = true;
+        }
+
+        private void OpenDetailsPopup(int id)
+        {
+            studentDetailsId = id;
+            isOpenDetailsPopup = true;
+        }
+
+        private void CloseUpdatePopup()
+        {
+            isOpenUpdatePopup = false;
+            Console.WriteLine();
+        }
+
+        private void CloseCreatePopup()
+        {
+            isOpenCreatePopup = false;
+        }
+
+        private void CloseDetailsPopup()
+        {
+            isOpenDetailsPopup = false;
+        }
 
         // load students with pagination
         private async Task LoadStudentsAsync()
@@ -47,16 +83,24 @@ namespace Client.Blazor.Components.Pages
             }
             else
             {
-                students = reply.Students;
+                students = reply.Students.Select(s => new StudentProfileModel
+                {
+                    Id = s.Id,
+                    FullName = s.FullName,
+                    Birthday = s.Birthday,
+                    Address = s.Address,
+                    ClassId = s.ClassId,
+                    ClassName = s.ClassName,
+                }).ToList();
                 total = reply.Count;
                 errorMessage = null;
             }
         }
 
         // search student by id
-        private async Task SearchById()
+        private async Task SearchById(int id)
         {
-            var reply = await StudentService.GetProfileAsync(searchId);
+            var reply = await StudentService.GetProfileAsync(new IdRequest { Id = id});
             if(reply.Student == null)
             {
                 errorMessage = reply.Message;
@@ -66,18 +110,16 @@ namespace Client.Blazor.Components.Pages
             else
             {
                 total = 1;
-                students = new List<StudentProfile>()
+                students!.Clear();
+                students.Add(new StudentProfileModel
                 {
-                    new StudentProfile
-                    {
-                        Id = reply.Student.Id,
-                        FullName = reply.Student.FullName,
-                        Birthday = reply.Student.Birthday,
-                        Address = reply.Student.Address,
-                        ClassId = reply.Student.ClassId,
-                        ClassName = reply.Student.ClassName,
-                    }
-                };
+                    Id = reply.Student.Id,
+                    FullName = reply.Student.FullName,
+                    Birthday = reply.Student.Birthday,
+                    Address = reply.Student.Address,
+                    ClassId = reply.Student.ClassId,
+                    ClassName = reply.Student.ClassName,
+                });
                 errorMessage = null;
             }
         }
@@ -121,6 +163,31 @@ namespace Client.Blazor.Components.Pages
         private void HandleSortByName()
         {
             students = students!.OrderBy(s => s.FullName).ToList();
+        }
+
+        private void HandleSortById()
+        {
+            students = students!.OrderBy(s => s.Id).ToList();
+        }
+
+        private void HandleSortByBirthday()
+        {
+            students = students!.OrderBy(s => s.Birthday).ToList();
+        }
+
+        private void HandleSortByAddress()
+        {
+            students = students!.OrderBy(s => s.Address).ToList();
+        }
+
+        private void HandleSortByClassId()
+        {
+            students = students!.OrderBy(s => s.ClassId).ToList();
+        }
+
+        private void HandleSortByClassName()
+        {
+            students = students!.OrderBy(s => s.ClassName).ToList();
         }
 
         protected override async Task OnInitializedAsync()
