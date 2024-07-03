@@ -5,9 +5,10 @@
 @inject NotificationService _notice
 <Tabs>
     <TabPane Key="1">
-        <TabTemplate>Số tuổi sinh viên 1 lớp</TabTemplate>
+        <TabTemplate>Thống kê số tuổi sinh viên</TabTemplate>
         <ChildContent>
-            <Pie Data="data1" Config="config1" />
+            @* <Pie Data="data1" Config="config1" /> *@
+            <AntDesign.Charts.Column Data="data1" Config="config1" />
         </ChildContent>
     </TabPane>
 
@@ -18,17 +19,3 @@
         </ChildContent>
     </TabPane>
 </Tabs>
-
-@* @inject IMessageService _message
-
-<Button Type="primary" OnClick="OnClick">
-    Display normal message
-</Button>
-
-@code {
-    private void OnClick()
-    {
-        Console.WriteLine("onclick");
-        _message.Info("This is a normal message");
-    }
-} *@

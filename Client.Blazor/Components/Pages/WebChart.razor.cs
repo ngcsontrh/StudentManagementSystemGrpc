@@ -21,8 +21,8 @@ namespace Client.Blazor.Components.Pages
         private List<ClassChartModel> data2 = null!;
 
         // config charts
-        private PieConfig config1 = null!;
         private PieConfig config2 = null!;
+        private ColumnConfig config1 = null!;
 
         // load all students for analysis.
         private async Task LoadStudentsData()
@@ -48,19 +48,37 @@ namespace Client.Blazor.Components.Pages
                         NumberOfStudent = s.Count(),
                     })
                     .ToList();
-            config1 = new PieConfig
+
+            config1 = new ColumnConfig
             {
                 AutoFit = true,
-                Radius = 0.8,
-                AngleField = "numberOfStudent",
-                ColorField = "age",
-                Label = new PieLabelConfig
+                Padding = "auto",
+                XField = "age",
+                YField = "numberOfStudent",
+                Meta = new
+                {
+                    Age = new
+                    {
+                        Alias = "Age Of Student"
+                    },
+                    NumberOfStudent = new
+                    {
+                        Alias = "Number Of Student"
+                    }
+                },
+                Label = new ColumnViewConfigLabel
                 {
                     Visible = true,
-                    Type = "inner"
+                    Style = new TextStyle
+                    {
+                        FontSize = 12,
+                        FontWeight = 600,
+                        Opacity = 0.6,
+                    }
+
                 }
             };
-        }
+         }
 
         private void LoadClassChart()
         {
@@ -85,8 +103,7 @@ namespace Client.Blazor.Components.Pages
                     Type = "spider"
                 }
             };
-        }
-
+        }       
 
         protected override async Task OnInitializedAsync()
         {
