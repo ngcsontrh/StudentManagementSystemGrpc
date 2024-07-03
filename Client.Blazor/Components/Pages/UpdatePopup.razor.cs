@@ -16,11 +16,13 @@ namespace Client.Blazor.Components.Pages
         public EventCallback ReloadStudents { get; set; }
 
         [Parameter]
-        public Action OnClose { get; set; } = null!;
+        /*public Action OnClose { get; set; } = null!;*/
+        public EventCallback<string> OnClose {  get; set; }
 
-        public void ClosePopup()
+        public async Task ClosePopup()
         {
-            OnClose();
+            await ReloadStudents.InvokeAsync();
+            await OnClose.InvokeAsync(errorMessage);
             IsVisible = false;
         }
 
@@ -33,7 +35,6 @@ namespace Client.Blazor.Components.Pages
         List<ClassInformationModel>? classes;
 
         string? errorMessage;
-        string? successMessage;
 
         async Task LoadClassesAsync()
         {
@@ -71,14 +72,13 @@ namespace Client.Blazor.Components.Pages
             });
             if (reply.Success)
             {
-                successMessage = "Updated sucessfully";
                 errorMessage = null;
-                await ReloadStudents.InvokeAsync();
             }
             else
             {
                 errorMessage = reply.Message;
             }
+            await ClosePopup();
         }
     }
 }

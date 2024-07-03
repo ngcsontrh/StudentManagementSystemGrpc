@@ -4,16 +4,6 @@
 @rendermode InteractiveServer
 
 <Drawer Visible="@IsVisible" Placement="right" Title="@("Add New Student")" OnClose="ClosePopup" Width="500">
-    @if (errorMessage != null)
-    {
-        <Alert Message="Error" Description="@errorMessage" Type="error" />
-    }
-
-    @if (successMessage != null)
-    {
-        <Alert Message="Success" Description="@successMessage" Type="success" />
-    }
-
     <Form Model="@studentProfile"
           OnFinish="CreateStudent" 
           ValidateMode=@FormValidateMode.Complex
@@ -39,5 +29,4 @@
             <Button Type="primary" HtmlType="submit">Add</Button>
         </FormItem>
     </Form>
-    
 </Drawer>

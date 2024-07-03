@@ -18,7 +18,7 @@ namespace Client.Blazor.Components.Pages
         [Inject]
         public IStudentService StudentService { get; set; } = null!;
 
-        private StudentDetailsModel studentDetails = null!;
+        private StudentDetailsModel studentDetails = new StudentDetailsModel();
         private string? errorMessage; 
 
         private void ClosePopup()
@@ -57,5 +57,6 @@ namespace Client.Blazor.Components.Pages
         {
             await LoadDetails();
         }
+
     }
 }

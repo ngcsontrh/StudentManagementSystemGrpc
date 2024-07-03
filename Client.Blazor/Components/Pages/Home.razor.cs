@@ -13,13 +13,16 @@ namespace Client.Blazor.Components.Pages
     public partial class Home : ComponentBase
     {
         [Inject]
-        private IStudentService StudentService { get; set; } = null!;
+        public IStudentService StudentService { get; set; } = null!;
 
         [Inject]
-        private IClassService ClassService { get; set; } = null!;
+        public IClassService ClassService { get; set; } = null!;
 
         [Inject]
-        private NavigationManager Navigation {  get; set; } = null!;
+        public NavigationManager Navigation {  get; set; } = null!;
+
+        [Inject]
+        public NotificationService Notification {  get; set; } = null!;
 
         // models
         private StudentProfileModel student = null!;
@@ -27,7 +30,7 @@ namespace Client.Blazor.Components.Pages
         
         private int studentDetailsId;
 
-        private string? errorMessage;
+        private string? errorMessage;        
 
         private int pageNumber = 1;
         private int pageSize = 10;
@@ -36,6 +39,7 @@ namespace Client.Blazor.Components.Pages
         bool isOpenUpdatePopup = false; // true if open update
         bool isOpenDetailsPopup = false; // true if open details
         bool isOpenCreatePopup = false;
+        bool isStudentSearchedFound = false;
 
         private void OpenUpdatePopup(StudentProfileModel student)
         {
@@ -54,15 +58,59 @@ namespace Client.Blazor.Components.Pages
             isOpenDetailsPopup = true;
         }
 
-        private void CloseUpdatePopup()
+        private async Task CloseUpdatePopup(string errorMessage)
         {
-            isOpenUpdatePopup = false;
-            Console.WriteLine();
+            await Task.Run(() =>
+            {
+                isOpenUpdatePopup = false;
+                this.errorMessage = errorMessage;
+            });
+            if(errorMessage == null)
+            {
+                _ = Notification.Open(new NotificationConfig()
+                {
+                    Message = "Success",
+                    Description = "Updated student information",
+                    NotificationType = NotificationType.Success
+                });
+            }
+            else
+            {
+                _ = Notification.Open(new NotificationConfig()
+                {
+                    Message = "Error",
+                    Description = errorMessage,
+                    NotificationType = NotificationType.Error
+                });
+            }
         }
 
-        private void CloseCreatePopup()
+        private async Task CloseCreatePopup(string errorMessage)
         {
             isOpenCreatePopup = false;
+            await Task.Run(() =>
+            {
+                isOpenUpdatePopup = false;
+                this.errorMessage = errorMessage;
+            });
+            if (errorMessage == null)
+            {
+                _ = Notification.Open(new NotificationConfig()
+                {
+                    Message = "Success",
+                    Description = "Added new student",
+                    NotificationType = NotificationType.Success
+                });
+            }
+            else
+            {
+                _ = Notification.Open(new NotificationConfig()
+                {
+                    Message = "Error",
+                    Description = errorMessage,
+                    NotificationType = NotificationType.Error
+                });
+            }
         }
 
         private void CloseDetailsPopup()
@@ -82,6 +130,12 @@ namespace Client.Blazor.Components.Pages
             if (reply.Students == null)
             {
                 errorMessage = reply.Message;
+                _ =  Notification.Open(new NotificationConfig()
+                {
+                    Message = "Error",
+                    Description = errorMessage,
+                    NotificationType = NotificationType.Error
+                });
             }
             else
             {
@@ -102,13 +156,19 @@ namespace Client.Blazor.Components.Pages
         private async Task HandlePageIndexChange(PaginationEventArgs args)
         {
             pageNumber = args.Page;
-            await LoadStudentsAsync();
+            if(!isStudentSearchedFound)
+            {
+                await LoadStudentsAsync();
+            }
         }
 
         private async Task HandlePageSizeChange(PaginationEventArgs args)
         {
             pageSize = args.PageSize;
-            await LoadStudentsAsync();
+            if (!isStudentSearchedFound)
+            {
+                await LoadStudentsAsync();
+            }
         }
 
         // delete student by id
@@ -118,16 +178,27 @@ namespace Client.Blazor.Components.Pages
             if (reply.Success)
             {
                 await LoadStudentsAsync();
+                if(students != null && students.Count == 1)
+                {
+                    pageNumber-= 1;
+                }
+                _ = Notification.Open(new NotificationConfig()
+                {
+                    Message = "Success",
+                    Description = "Student has been deleted",
+                    NotificationType = NotificationType.Success
+                });
             }
             else
             {
                 errorMessage = reply.Message;
+                _ = Notification.Open(new NotificationConfig()
+                {
+                    Message = "Success",
+                    Description = errorMessage,
+                    NotificationType = NotificationType.Error
+                });
             }
-        }
-
-        private void LoadStudentFound(List<StudentProfileModel> searchedStudents)
-        {
-            students = searchedStudents;
         }
 
         private void HandleSortByName()
@@ -166,6 +237,19 @@ namespace Client.Blazor.Components.Pages
             {
                 students = studentProfiles;
                 total = studentProfiles.Count;
+                isStudentSearchedFound = true;
+            });
+        }
+
+        private async Task OnSearchedNotFound()
+        {
+            await LoadStudentsAsync();
+            isStudentSearchedFound = false;
+            _ = Notification.Open(new NotificationConfig()
+            {
+                Message = "Error",
+                Description = "Not Found",
+                NotificationType = NotificationType.Error,
             });
         }
 

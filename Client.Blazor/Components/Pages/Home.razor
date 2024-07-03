@@ -9,7 +9,7 @@
 <PageTitle>Home</PageTitle>
 
 <div>
-    <SearchField OnStudentFound="OnSearchFound" OnStudentNotFound="LoadStudentsAsync" />
+    <SearchField OnStudentFound="OnSearchFound" OnStudentNotFound="OnSearchedNotFound" />
 </div>
 
 <div class="d-flex justify-content-between align-items-center">
@@ -50,13 +50,6 @@
 
 </div>
 
-@if(errorMessage != null)
-{
-    <Alert Message="Error"
-           Description="@errorMessage"
-           Type="@AlertType.Error" />    
-}
-
 <Table 
     DataSource="@students" 
     RowKey="s => s.Id"
@@ -67,17 +60,15 @@
     HidePagination="(total <= pageSize)"
     OnPageIndexChange="HandlePageIndexChange"
     OnPageSizeChange="HandlePageSizeChange">
-
-    <ChildContent Context="data">
-        <PropertyColumn Property="s => s.Id" Title="Id" />
-        <PropertyColumn Property="s => s.FullName" Title="Full Name" />
-        <PropertyColumn Property="s => s.Birthday" Title="Birthday" Format="dd/MM/yyyy" />
-        <PropertyColumn Property="s => s.Address" Title="Address" />
-        <PropertyColumn Property="s => s.ClassId" Title="Class Id" />
-        <PropertyColumn Property="s => s.ClassName" Title="Class Name" />
+        <PropertyColumn Property="s => s.Id" Title="Id" Sortable />
+        <PropertyColumn Property="s => s.FullName" Title="Full Name" Sortable />
+        <PropertyColumn Property="s => s.Birthday" Title="Birthday" Format="dd/MM/yyyy" Sortable />
+        <PropertyColumn Property="s => s.Address" Title="Address" Sortable/>
+        <PropertyColumn Property="s => s.ClassId" Title="Class Id" Sortable/>
+        <PropertyColumn Property="s => s.ClassName" Title="Class Name" Sortable/>
         <ActionColumn Title="Action" Class="d-flex justify-content-center align-items-center gap-2">
             <Popconfirm Title="Sure to delete?"
-                        OnConfirm="()=> HandleOnDeleteAsync(data.Id)"
+                        OnConfirm="()=> HandleOnDeleteAsync(context.Id)"
                         OkText="Yes"
                         CancelText="No">
                 <Button Danger>
@@ -85,12 +76,20 @@
                 </Button>
             </Popconfirm>
 
-            <Button OnClick="() => OpenUpdatePopup(data)">Update</Button>
-            <Button OnClick="() => OpenDetailsPopup(data.Id)">Details</Button>
+            <Button OnClick="() => OpenUpdatePopup(context)">Update</Button>
+            <Button OnClick="() => OpenDetailsPopup(context.Id)">Details</Button>
         </ActionColumn>
-    </ChildContent>
+   
 </Table>
-
-<UpdatePopup IsVisible ="isOpenUpdatePopup" StudentProfile="student" ReloadStudents="LoadStudentsAsync" OnClose="CloseUpdatePopup"/>
-<DetailsPopup IsVisible="isOpenDetailsPopup" Id="studentDetailsId" OnClose="CloseDetailsPopup"/>
-<CreatePopup IsVisible="isOpenCreatePopup" ReloadStudents="LoadStudentsAsync" OnClose="CloseCreatePopup" />
+@if(isOpenUpdatePopup)
+{
+    <UpdatePopup IsVisible ="isOpenUpdatePopup" StudentProfile="student" ReloadStudents="LoadStudentsAsync" OnClose="CloseUpdatePopup"/>
+}
+@if(isOpenDetailsPopup)
+{
+    <DetailsPopup IsVisible="isOpenDetailsPopup" Id="studentDetailsId" OnClose="CloseDetailsPopup"/>
+}
+@if(isOpenCreatePopup)
+{
+    <CreatePopup IsVisible="isOpenCreatePopup" ReloadStudents="LoadStudentsAsync" OnClose="CloseCreatePopup" />
+}
