@@ -59,7 +59,7 @@ namespace Client.Blazor.Repositories
             return student;
         }
 
-        public async Task<List<Student>>? GetByAddressAsync(string address)
+        public async Task<List<Student>?> GetByAddressAsync(string address)
         {
             List<Student>? students = await _session.Query<Student>()
                 .Where(s => s.Address.Contains(address))
@@ -68,7 +68,7 @@ namespace Client.Blazor.Repositories
             return students;
         }
 
-        public async Task<List<Student>>? GetByClassAsync(int classId)
+        public async Task<List<Student>?> GetByClassAsync(int classId)
         {
             List<Student> students = await _session.Query<Student>()
                 .Where(s => s.StudentClass.Id == classId)
@@ -76,8 +76,8 @@ namespace Client.Blazor.Repositories
                 .ToListAsync();
             return students;
         }
-
-        public async Task<List<Student>>? GetByDateAsync(DateTime dateStart, DateTime dateEnd)
+    
+        public async Task<List<Student>?> GetByDateAsync(DateTime dateStart, DateTime dateEnd)
         {
             List<Student> students = await _session.Query<Student>()
                 .Where(s => s.Birthday.Date >= dateStart.Date && s.Birthday.Date <= dateEnd.Date)
@@ -85,8 +85,8 @@ namespace Client.Blazor.Repositories
                 .ToListAsync();
             return students;
         }
-
-        public async Task<List<Student>>? GetByNameAsync(string name)
+    
+        public async Task<List<Student>?> GetByNameAsync(string name)
         {
             List<Student>? students = await _session.Query<Student>()
                 .Where(s => s.FullName.Contains(name))
@@ -94,7 +94,7 @@ namespace Client.Blazor.Repositories
                 .ToListAsync();
             return students;
         }
-
+    
         public async Task<Student?> GetDetailsAsync(int id)
         {
             Student student = await _session.Query<Student>()
@@ -117,7 +117,7 @@ namespace Client.Blazor.Repositories
             return students;
         }
 
-        public async Task<List<Student>>? SearchAsync(SearchStudentModel studentSearch)
+        public async Task<List<Student>?> SearchAsync(SearchStudentModel studentSearch)
         {
             var query = _session.Query<Student>().AsQueryable();
             query = Filter(query, studentSearch);
@@ -137,13 +137,13 @@ namespace Client.Blazor.Repositories
 
         private IQueryable<Student>? Filter(IQueryable<Student> query, SearchStudentModel studentSearchField)
         {
-            if (!string.IsNullOrWhiteSpace(studentSearchField.Name))
-            {
-                query = query.Where(s => s.FullName.Contains(studentSearchField.Name));
-            }
             if (studentSearchField.Id.HasValue)
             {
                 query = query.Where(student => student.Id == studentSearchField.Id.Value);
+            }
+            if (!string.IsNullOrWhiteSpace(studentSearchField.Name))
+            {
+                query = query.Where(s => s.FullName.Contains(studentSearchField.Name));
             }
             if (!string.IsNullOrEmpty(studentSearchField.Address))
             {

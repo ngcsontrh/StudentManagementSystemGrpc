@@ -33,7 +33,7 @@ namespace Shared
         Task<MultipleStudentProfilesReply> GetWithPaginationAsync(PaginationRequest request, CallContext context = default);
 
         [OperationContract] // bug
-        Task<MultipleStudentProfilesReply> SearchAsync(SearchRequest request, CallContext callContext = default);
+        Task<MultipleStudentProfilesReply> SearchStudentAsync(SearchRequest request, CallContext callContext = default);
 
         [OperationContract]
         Task<MultipleStudentProfilesReply> GetProfileByNameAsync(NameRequest request, CallContext callContext = default);
@@ -52,7 +52,12 @@ namespace Shared
     [DataContract]
     public class SearchRequest
     {
-        [DataMember(Order = 1)] public SearchStudentModel StudentFields { get; set; } = null!;
+        [DataMember(Order = 1)] public int? Id { get; set; }
+        [DataMember(Order = 2)] public string? Name { get; set; }
+        [DataMember(Order = 3)] public DateTime? StartDate { get; set; }
+        [DataMember(Order = 4)] public DateTime? EndDate { get; set; }
+        [DataMember(Order = 5)] public string? Address { get; set; }
+        [DataMember(Order = 6)] public int? ClassId { get; set; }
     }
 
     [DataContract]

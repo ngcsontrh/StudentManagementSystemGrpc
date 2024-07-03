@@ -11,6 +11,13 @@ namespace Client.Blazor
         {
             var builder = WebApplication.CreateBuilder(args);
             string grpcAddress = builder.Configuration.GetConnectionString("gRPCAddress1")!;
+            var handler = new SocketsHttpHandler
+            {
+                PooledConnectionIdleTimeout = Timeout.InfiniteTimeSpan,
+                KeepAlivePingDelay = TimeSpan.FromSeconds(60),
+                KeepAlivePingTimeout = TimeSpan.FromSeconds(30),
+                EnableMultipleHttp2Connections = true
+            };
 
             // Add services to the container.
             builder.Services.AddRazorComponents().AddInteractiveServerComponents();
@@ -20,13 +27,19 @@ namespace Client.Blazor
             // Add DI grpc services
             builder.Services.AddScoped(provider =>
             {
-                var channel = GrpcChannel.ForAddress(grpcAddress);
+                var channel = GrpcChannel.ForAddress(grpcAddress, new GrpcChannelOptions
+                {
+                    HttpHandler = handler
+                });
                 return channel.CreateGrpcService<IStudentService>();
             });
 
             builder.Services.AddScoped(provider =>
             {
-                var channel = GrpcChannel.ForAddress(grpcAddress);
+                var channel = GrpcChannel.ForAddress(grpcAddress, new GrpcChannelOptions
+                {
+                    HttpHandler = handler
+                });
                 return channel.CreateGrpcService<IClassService>();
             });
 

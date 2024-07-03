@@ -2,6 +2,7 @@
 using Server.Entities;
 using Server.Repositories.Interfaces;
 using Shared;
+using Shared.Models;
 
 namespace Server.Services
 {
@@ -168,7 +169,7 @@ namespace Server.Services
             try
             {
                 List<Student>? students = await _studentRepository.GetByAddressAsync(request.Address)!;
-                int count = students.Count;
+                int count = students!.Count;
 
                 if (count == 0)
                 {
@@ -209,7 +210,7 @@ namespace Server.Services
             try
             {
                 List<Student>? students = await _studentRepository.GetByClassAsync(request.Id)!;
-                int count = students.Count;
+                int count = students!.Count;
 
                 if (count == 0)
                 {
@@ -250,7 +251,7 @@ namespace Server.Services
             try
             {
                 List<Student>? students = await _studentRepository.GetByDateAsync(request.DateStart, request.DateEnd)!;
-                int count = students.Count;
+                int count = students!.Count;
 
                 if (count == 0)
                 {
@@ -367,13 +368,22 @@ namespace Server.Services
             return reply;
         }
 
-        public async Task<MultipleStudentProfilesReply> SearchAsync(SearchRequest request, CallContext callContext = default)
+        public async Task<MultipleStudentProfilesReply> SearchStudentAsync(SearchRequest request, CallContext callContext = default)
         {
             var reply = new MultipleStudentProfilesReply();
             try
             {
-                List<Student>? students = await _studentRepository.SearchAsync(request.StudentFields)!;
-                if(students == null || students.Count == 0)
+                var studentField = new SearchStudentModel
+                {
+                    Id = request.Id,
+                    Name = request.Name,
+                    Address = request.Address,
+                    ClassId = request.ClassId,
+                    StartDate = request.StartDate,
+                    EndDate = request.EndDate
+                };
+                List<Student>? students = await _studentRepository.SearchAsync(studentField);
+                if (students == null || students.Count == 0)
                 {
                     throw new Exception("There is no students");
                 }

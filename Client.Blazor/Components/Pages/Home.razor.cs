@@ -99,7 +99,6 @@ namespace Client.Blazor.Components.Pages
             }
         }
 
-
         private async Task HandlePageIndexChange(PaginationEventArgs args)
         {
             pageNumber = args.Page;
@@ -124,6 +123,11 @@ namespace Client.Blazor.Components.Pages
             {
                 errorMessage = reply.Message;
             }
+        }
+
+        private void LoadStudentFound(List<StudentProfileModel> searchedStudents)
+        {
+            students = searchedStudents;
         }
 
         private void HandleSortByName()
@@ -154,6 +158,15 @@ namespace Client.Blazor.Components.Pages
         private void HandleSortByClassName()
         {
             students = students!.OrderBy(s => s.ClassName).ToList();
+        }
+
+        private async Task OnSearchFound(List<StudentProfileModel> studentProfiles)
+        {
+            await Task.Run(() =>
+            {
+                students = studentProfiles;
+                total = studentProfiles.Count;
+            });
         }
 
         protected override async Task OnInitializedAsync()

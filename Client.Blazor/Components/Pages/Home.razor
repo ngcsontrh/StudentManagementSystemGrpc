@@ -1,5 +1,6 @@
 ﻿@page "/"
 @page "/students"
+@using Client.Blazor.Models
 @using Grpc.Net.Client
 @using ProtoBuf.Grpc.Client
 @using Shared
@@ -8,42 +9,45 @@
 <PageTitle>Home</PageTitle>
 
 <div>
-    <Button Type="primary" OnClick="OpenCreatePopup">Add new student</Button>
-    <SearchField />
+    <SearchField OnStudentFound="OnSearchFound" OnStudentNotFound="LoadStudentsAsync" />
 </div>
 
-<div class="float-end">
-    <Dropdown>
-        <Overlay>
-            <Menu>
-                <MenuItem OnClick="HandleSortById">
-                    <Text>Sort by Id</Text>
-                </MenuItem>
-                <MenuItem OnClick="HandleSortByName">                   
-                    <Text>Sort by Name</Text>
-                </MenuItem>
-                <MenuItem OnClick="HandleSortByBirthday">
-                    <Text>Sort by Birthday</Text>
-                </MenuItem>
-                <MenuItem OnClick="HandleSortByAddress">
-                    <Text>Sort by Address</Text>
-                </MenuItem>
-                <MenuItem OnClick="HandleSortByClassId">
-                    <Text>Sort by Class Id</Text>
-                </MenuItem>
-                <MenuItem OnClick="HandleSortByClassName">
-                    <Text>Sort by Class Name</Text>
-                </MenuItem>
-            </Menu>
-        </Overlay>
-        <ChildContent>
-            <Button>
-                Sort by <Icon Type="caret-down" Theme="outline" />
-            </Button>
-        </ChildContent>
-    </Dropdown>
+<div class="d-flex justify-content-between align-items-center">
+    <Button Type="primary" OnClick="OpenCreatePopup">Add new student</Button>
+    <div>
+        <Dropdown>
+            <Overlay>
+                <Menu>
+                    <MenuItem OnClick="HandleSortById">
+                        <Text>Sort by Id</Text>
+                    </MenuItem>
+                    <MenuItem OnClick="HandleSortByName">                   
+                        <Text>Sort by Name</Text>
+                    </MenuItem>
+                    <MenuItem OnClick="HandleSortByBirthday">
+                        <Text>Sort by Birthday</Text>
+                    </MenuItem>
+                    <MenuItem OnClick="HandleSortByAddress">
+                        <Text>Sort by Address</Text>
+                    </MenuItem>
+                    <MenuItem OnClick="HandleSortByClassId">
+                        <Text>Sort by Class Id</Text>
+                    </MenuItem>
+                    <MenuItem OnClick="HandleSortByClassName">
+                        <Text>Sort by Class Name</Text>
+                    </MenuItem>
+                </Menu>
+            </Overlay>
+            <ChildContent>
+                <Button>
+                    Sort by <Icon Type="caret-down" Theme="outline" />
+                </Button>
+            </ChildContent>
+        </Dropdown>
     
-    <Button OnClick="LoadStudentsAsync">Reload Page</Button>
+        <Button OnClick="LoadStudentsAsync">Reload Page</Button>
+    </div>
+
 </div>
 
 @if(errorMessage != null)
