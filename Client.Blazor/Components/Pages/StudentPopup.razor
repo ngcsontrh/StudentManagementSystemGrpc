@@ -1,0 +1,48 @@
+﻿@using Client.Blazor.Models
+@using Microsoft.AspNetCore.Components
+@using Shared
+@rendermode InteractiveServer
+
+<Drawer Visible="@IsVisible" Placement="right" Title="@("Update Student")" OnClose="ClosePopup" Width="500">
+    <Form Model="@StudentProfile"
+          OnFinish="@(Status == "Update" ? UpdateStudent : Status == "Create" ? CreateStudent: async () => {})"
+          ValidateMode=@FormValidateMode.Complex
+          RequiredMark=FormRequiredMark.Required>
+        <FormItem Label="Full Name">
+            <Input @bind-Value="StudentProfile.FullName" Disabled=@(Status == "Details")/>
+        </FormItem>
+        <FormItem Label="Birthday">
+            <DatePicker @bind-Value="StudentProfile.Birthday" Format="dd/MM/yyyy" Disabled=@(Status == "Details") />
+        </FormItem>
+        <FormItem Label="Class">
+            <Select DataSource="@classes"
+                    @bind-Value="@context.ClassId"
+                    ItemValue="c => c.Id"
+                    ItemLabel="c => c.Name"
+                    Style="width: 200px"
+                    Disabled=@(Status == "Details")>
+            </Select>
+        </FormItem>
+        <FormItem Label="Address">
+            <TextArea @bind-Value="StudentProfile.Address" MinRows="3" MaxRows="6" Disabled=@(Status == "Details") />
+        </FormItem>
+        @if (Status == "Details")
+        {
+            <FormItem Label="Class Subject">
+                <Select DataSource="@classes"
+                        @bind-Value="@context.ClassId"
+                        ItemValue="c => c.Id"
+                        ItemLabel="c => c.Subject"
+                        Style="width: 200px"
+                        Disabled>
+                </Select>
+            </FormItem>
+            <FormItem Label="Teacher Name">
+                <Input @bind-Value="StudentProfile.TeacherFullName" Disabled/>
+            </FormItem>
+        }       
+        <FormItem>
+            <Button Disabled=@(Status == "Details") Type="primary" HtmlType="submit">@Status</Button>
+        </FormItem>
+    </Form>
+</Drawer>

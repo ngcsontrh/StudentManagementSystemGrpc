@@ -49,23 +49,27 @@
     </div>
 
 </div>
-
-<Table 
-    DataSource="@students" 
-    RowKey="s => s.Id"
-    PageIndex="pageNumber"
-    Loading="(students == null)"
-    Total="total"
-    PageSize="pageSize"
-    HidePagination="(total <= pageSize)"
-    OnPageIndexChange="HandlePageIndexChange"
-    OnPageSizeChange="HandlePageSizeChange">
+    <Table DataSource="@students"
+           RowKey="s => s.Id"
+           PageIndex="pageNumber"
+           Loading="(students == null)"
+           Total="total"
+           PageSize="pageSize"
+           HidePagination="(total <= pageSize)"
+           OnPageIndexChange="HandlePageIndexChange"
+           OnPageSizeChange="HandlePageSizeChange">
+        <ColumnDefinition Title="Index">
+            @{
+                int index = students.IndexOf(context) + 1 + ((pageNumber - 1) * pageSize);
+            }
+            @index
+        </ColumnDefinition>
         <PropertyColumn Property="s => s.Id" Title="Id" Sortable />
         <PropertyColumn Property="s => s.FullName" Title="Full Name" Sortable />
         <PropertyColumn Property="s => s.Birthday" Title="Birthday" Format="dd/MM/yyyy" Sortable />
-        <PropertyColumn Property="s => s.Address" Title="Address" Sortable/>
-        <PropertyColumn Property="s => s.ClassId" Title="Class Id" Sortable/>
-        <PropertyColumn Property="s => s.ClassName" Title="Class Name" Sortable/>
+        <PropertyColumn Property="s => s.Address" Title="Address" Sortable />
+        <PropertyColumn Property="s => s.ClassId" Title="Class Id" Sortable />
+        <PropertyColumn Property="s => s.ClassName" Title="Class Name" Sortable />
         <ActionColumn Title="Action" Class="d-flex justify-content-center align-items-center gap-2">
             <Popconfirm Title="Sure to delete?"
                         OnConfirm="()=> HandleOnDeleteAsync(context.Id)"
@@ -77,19 +81,22 @@
             </Popconfirm>
 
             <Button OnClick="() => OpenUpdatePopup(context)">Update</Button>
-            <Button OnClick="() => OpenDetailsPopup(context.Id)">Details</Button>
+            <Button OnClick="() => OpenDetailsPopup(context)">Details</Button>
         </ActionColumn>
-   
-</Table>
-@if(isOpenUpdatePopup)
+    </Table>
+
+@if (isOpenUpdatePopup)
 {
-    <UpdatePopup IsVisible ="isOpenUpdatePopup" StudentProfile="student" ReloadStudents="LoadStudentsAsync" OnClose="CloseUpdatePopup"/>
+    @*     <UpdatePopup IsVisible ="isOpenUpdatePopup" StudentProfile="student" ReloadStudents="LoadStudentsAsync" OnClose="CloseUpdatePopup"/> *@
+    <StudentPopup IsVisible="isOpenUpdatePopup" StudentProfile="student" ReloadStudents="LoadStudentsAsync" OnClose="CloseUpdatePopup" Status="Update" />
 }
-@if(isOpenDetailsPopup)
+@if (isOpenDetailsPopup)
 {
-    <DetailsPopup IsVisible="isOpenDetailsPopup" Id="studentDetailsId" OnClose="CloseDetailsPopup"/>
+    @* <DetailsPopup IsVisible="isOpenDetailsPopup" Id="studentDetailsId" OnClose="CloseDetailsPopup"/> *@
+    <StudentPopup IsVisible="isOpenDetailsPopup" StudentProfile="student" OnClose="CloseDetailsPopup" Status="Details" />
 }
-@if(isOpenCreatePopup)
+@if (isOpenCreatePopup)
 {
-    <CreatePopup IsVisible="isOpenCreatePopup" ReloadStudents="LoadStudentsAsync" OnClose="CloseCreatePopup" />
+    @* <CreatePopup IsVisible="isOpenCreatePopup" ReloadStudents="LoadStudentsAsync" OnClose="CloseCreatePopup" /> *@
+    <StudentPopup IsVisible="isOpenCreatePopup" ReloadStudents="LoadStudentsAsync" OnClose="CloseCreatePopup" Status="Create" />
 }

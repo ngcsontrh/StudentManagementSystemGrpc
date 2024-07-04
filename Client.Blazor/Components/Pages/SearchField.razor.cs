@@ -1,6 +1,6 @@
 ﻿using Client.Blazor.Models;
 using Microsoft.AspNetCore.Components;
-using Shared.Models;
+using Shared.DTOs;
 using Shared;
 
 namespace Client.Blazor.Components.Pages
@@ -14,15 +14,16 @@ namespace Client.Blazor.Components.Pages
         IClassService ClassService { get; set; } = null!;
 
         [Parameter]
-        public EventCallback<List<StudentProfileModel>> OnStudentFound { get; set; }
+        public EventCallback<StudentPaginatedModel> OnStudentFound { get; set; }
 
         [Parameter]
         public EventCallback OnStudentNotFound { get; set; }
 
-        SearchStudentModel studentFields = new SearchStudentModel();
+        SearchStudentDTO studentFields = new SearchStudentDTO();
 
         List<ClassInformationModel>? classes;
         List<StudentProfileModel>? students;
+        int total;
 
         private async Task LoadClassesAsync()
         {
@@ -37,15 +38,15 @@ namespace Client.Blazor.Components.Pages
 
         private async Task HandleOnSearchAsync()
         {
-            students = null;
+
             var reply = await StudentService.SearchStudentAsync(new SearchRequest
             {
                 Id = studentFields.Id,
                 Name = studentFields.Name,
                 Address = studentFields.Address,
                 ClassId = studentFields.ClassId,
-                StartDate = studentFields.StartDate,
-                EndDate = studentFields.EndDate
+                EndDate = studentFields.EndDate,
+                StartDate = studentFields.StartDate
             });
             if (reply.Students == null)
             {
@@ -62,7 +63,12 @@ namespace Client.Blazor.Components.Pages
                     ClassId = s.ClassId,
                     ClassName = s.ClassName,
                 }).ToList();
-                await OnStudentFound.InvokeAsync(students);
+                total = reply.Count;
+                await OnStudentFound.InvokeAsync(new StudentPaginatedModel
+                {
+                    Total = total,
+                    Students  = students
+                });
             }
         }
 

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ProtoBuf.Grpc.Client;
 using Shared;
-using Shared.Models;
+using Shared.DTOs;
 
 namespace Client.Blazor.Components.Pages
 {
@@ -27,10 +27,7 @@ namespace Client.Blazor.Components.Pages
         // models
         private StudentProfileModel student = null!;
         private List<StudentProfileModel>? students;
-        
-        private int studentDetailsId;
-
-        private string? errorMessage;        
+        private List<StudentProfileModel>? studentsSearched;
 
         private int pageNumber = 1;
         private int pageSize = 10;
@@ -49,71 +46,30 @@ namespace Client.Blazor.Components.Pages
 
         private void OpenCreatePopup()
         {
+            this.student = new StudentProfileModel()
+            {
+                Birthday = DateTime.Now
+            };
             isOpenCreatePopup = true;
         }
 
-        private void OpenDetailsPopup(int id)
+        private void OpenDetailsPopup(StudentProfileModel student)
         {
-            studentDetailsId = id;
+            this.student = student;
             isOpenDetailsPopup = true;
         }
 
-        private async Task CloseUpdatePopup(string errorMessage)
+        private async Task CloseUpdatePopup()
         {
-            await Task.Run(() =>
-            {
-                isOpenUpdatePopup = false;
-                this.errorMessage = errorMessage;
-            });
-            if(errorMessage == null)
-            {
-                _ = Notification.Open(new NotificationConfig()
-                {
-                    Message = "Success",
-                    Description = "Updated student information",
-                    NotificationType = NotificationType.Success
-                });
-            }
-            else
-            {
-                _ = Notification.Open(new NotificationConfig()
-                {
-                    Message = "Error",
-                    Description = errorMessage,
-                    NotificationType = NotificationType.Error
-                });
-            }
+            isOpenUpdatePopup = false;
         }
 
-        private async Task CloseCreatePopup(string errorMessage)
+        private async Task CloseCreatePopup()
         {
             isOpenCreatePopup = false;
-            await Task.Run(() =>
-            {
-                isOpenUpdatePopup = false;
-                this.errorMessage = errorMessage;
-            });
-            if (errorMessage == null)
-            {
-                _ = Notification.Open(new NotificationConfig()
-                {
-                    Message = "Success",
-                    Description = "Added new student",
-                    NotificationType = NotificationType.Success
-                });
-            }
-            else
-            {
-                _ = Notification.Open(new NotificationConfig()
-                {
-                    Message = "Error",
-                    Description = errorMessage,
-                    NotificationType = NotificationType.Error
-                });
-            }
         }
 
-        private void CloseDetailsPopup()
+        private async Task CloseDetailsPopup()
         {
             isOpenDetailsPopup = false;
         }
@@ -127,17 +83,16 @@ namespace Client.Blazor.Components.Pages
                 PageSize = pageSize,
             });
 
-            if (reply.Students == null)
+            if (reply.Students == null  && reply.Count == 0)
             {
-                errorMessage = reply.Message;
                 _ =  Notification.Open(new NotificationConfig()
                 {
                     Message = "Error",
-                    Description = errorMessage,
+                    Description = reply.Message,
                     NotificationType = NotificationType.Error
                 });
             }
-            else
+            else if(reply.Students != null)
             {
                 students = reply.Students.Select(s => new StudentProfileModel
                 {
@@ -147,16 +102,23 @@ namespace Client.Blazor.Components.Pages
                     Address = s.Address,
                     ClassId = s.ClassId,
                     ClassName = s.ClassName,
+                    ClassSubject = s.ClassSubject,
+                    TeacherId = s.TeacherId,
+                    TeacherBirthday = s.TeacherBirthday,
+                    TeacherFullName = s.TeacherFullName
                 }).ToList();
                 total = reply.Count;
-                errorMessage = null;
             }
         }
 
         private async Task HandlePageIndexChange(PaginationEventArgs args)
         {
             pageNumber = args.Page;
-            if(!isStudentSearchedFound)
+            if(isStudentSearchedFound)
+            {
+                students = studentsSearched.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+            }
+            else
             {
                 await LoadStudentsAsync();
             }
@@ -169,6 +131,10 @@ namespace Client.Blazor.Components.Pages
             {
                 await LoadStudentsAsync();
             }
+            else
+            {
+                students = studentsSearched.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+            }
         }
 
         // delete student by id
@@ -177,8 +143,10 @@ namespace Client.Blazor.Components.Pages
             var reply = await StudentService.DeleteAsync(new IdRequest { Id = id });
             if (reply.Success)
             {
+                pageSize = 10;
+                pageNumber = 1;
                 await LoadStudentsAsync();
-                if(students != null && students.Count == 1)
+                if (students != null && students.Count == 1)
                 {
                     pageNumber-= 1;
                 }
@@ -191,11 +159,10 @@ namespace Client.Blazor.Components.Pages
             }
             else
             {
-                errorMessage = reply.Message;
                 _ = Notification.Open(new NotificationConfig()
                 {
                     Message = "Success",
-                    Description = errorMessage,
+                    Description = reply.Message,
                     NotificationType = NotificationType.Error
                 });
             }
@@ -231,14 +198,14 @@ namespace Client.Blazor.Components.Pages
             students = students!.OrderBy(s => s.ClassName).ToList();
         }
 
-        private async Task OnSearchFound(List<StudentProfileModel> studentProfiles)
+        private async Task OnSearchFound(StudentPaginatedModel paginatedModel)
         {
-            await Task.Run(() =>
-            {
-                students = studentProfiles;
-                total = studentProfiles.Count;
-                isStudentSearchedFound = true;
-            });
+            pageNumber = 1;
+            pageSize = 10;
+            isStudentSearchedFound = true;
+            studentsSearched = paginatedModel.Students?.OrderBy(s => s.Id).ToList();
+            total = studentsSearched.Count;
+            students = studentsSearched.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
         }
 
         private async Task OnSearchedNotFound()

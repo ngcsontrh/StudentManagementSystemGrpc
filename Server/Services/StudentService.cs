@@ -2,7 +2,7 @@
 using Server.Entities;
 using Server.Repositories.Interfaces;
 using Shared;
-using Shared.Models;
+using Shared.DTOs;
 
 namespace Server.Services
 {
@@ -16,8 +16,7 @@ namespace Server.Services
             _studentRepository = studentRepository;
             _classRepository = classRepository;
         }
-
-        public async Task<OperationReply> CreateAsync(CreateStudentRequest request, CallContext context = default)
+        public async Task<OperationReply> CreateAsync(StudentProfile request, CallContext context = default)
         {
             OperationReply reply = new OperationReply();
             try
@@ -36,14 +35,12 @@ namespace Server.Services
                     StudentClass = clazz
                 };
                 await _studentRepository.CreateAsync(student);
-
                 reply.Success = true;
             }
             catch (Exception ex)
             {
                 reply.Message = ex.Message;
             }
-
             return reply;
         }
 
@@ -57,7 +54,6 @@ namespace Server.Services
                 {
                     throw new Exception($"There is no student id = {request.Id}");
                 }
-
                 await _studentRepository.DeleteAsync(student);
                 reply.Success = true;
             }
@@ -80,58 +76,24 @@ namespace Server.Services
                 }
 
                 reply.Count = students.Count;
-                reply.Students = new List<StudentProfile>();
-                foreach (Student student in students)
+                reply.Students = students.Select(s => new StudentProfile
                 {
-                    reply.Students.Add(new StudentProfile
-                    {
-                        Id = student.Id,
-                        FullName = student.FullName,
-                        Birthday = student.Birthday,
-                        Address = student.Address,
-                        ClassId = student.StudentClass.Id,
-                        ClassName = student.StudentClass.Name
-                    });
-                }
+                    Id = s.Id,
+                    FullName = s.FullName,
+                    Birthday = s.Birthday,
+                    Address = s.Address,
+                    ClassId = s.StudentClass.Id,
+                    ClassName = s.StudentClass.Name,
+                    ClassSubject = s.StudentClass.Subject,
+                    TeacherId = s.StudentClass.ClassTeacher.Id,
+                    TeacherFullName = s.StudentClass.ClassTeacher.FullName,
+                    TeacherBirthday = s.StudentClass.ClassTeacher.Birthday
+                }).ToList();
             }
             catch (Exception ex)
             {
                 reply.Message = ex.Message;
             }
-
-            return reply;
-        }
-
-        public async Task<StudentDetailsReply> GetDetailsAsync(IdRequest request, CallContext context = default)
-        {
-            StudentDetailsReply reply = new StudentDetailsReply();
-            try
-            {
-                Student? student = await _studentRepository.GetDetailsAsync(request.Id);
-                if(student == null)
-                {
-                    throw new Exception($"There is no student id = {request.Id}");
-                }
-
-                reply.Student = new StudentDetails
-                {
-                    Id = student.Id,
-                    FullName = student.FullName,
-                    Birthday = student.Birthday,
-                    Address = student.Address,
-                    ClassId = student.StudentClass.Id,
-                    ClassName = student.StudentClass.Name,
-                    ClassSubject = student.StudentClass.Name,
-                    TeacherId = student.StudentClass.ClassTeacher.Id,
-                    TeacherBirthday = student.StudentClass.ClassTeacher.Birthday,
-                    TeacherFullName = student.StudentClass.ClassTeacher.FullName
-                };
-            }
-            catch (Exception ex)
-            {
-                reply.Message = ex.Message;
-            }
-
             return reply;
         }
 
@@ -141,7 +103,7 @@ namespace Server.Services
             try
             {
                 Student? student = await _studentRepository.GetAsync(request.Id);
-                if(student == null)
+                if (student == null)
                 {
                     throw new Exception($"There is no student id = {request.Id}");
                 }
@@ -154,176 +116,16 @@ namespace Server.Services
                     Address = student.Address,
                     ClassId = student.StudentClass.Id,
                     ClassName = student.StudentClass.Name,
+                    ClassSubject = student.StudentClass.Subject,
+                    TeacherId = student.StudentClass.ClassTeacher.Id,
+                    TeacherFullName = student.StudentClass.ClassTeacher.FullName,
+                    TeacherBirthday = student.StudentClass.ClassTeacher.Birthday
                 };
             }
             catch (Exception ex)
             {
                 reply.Message = ex.Message;
             }
-            return reply;
-        }
-
-        public async Task<MultipleStudentProfilesReply> GetProfileByAddressAsync(AddressRequest request, CallContext callContext = default)
-        {
-            MultipleStudentProfilesReply reply = new MultipleStudentProfilesReply();
-            try
-            {
-                List<Student>? students = await _studentRepository.GetByAddressAsync(request.Address)!;
-                int count = students!.Count;
-
-                if (count == 0)
-                {
-                    throw new Exception("There is no student in database");
-                }
-
-                if (students == null || students.Count == 0)
-                {
-                    throw new Exception("There is no student in this page");
-                }
-
-                reply.Count = count;
-                reply.Students = new List<StudentProfile>();
-                foreach (var student in students)
-                {
-                    reply.Students.Add(new StudentProfile
-                    {
-                        Id = student.Id,
-                        FullName = student.FullName,
-                        Birthday = student.Birthday,
-                        Address = student.Address,
-                        ClassId = student.StudentClass.Id,
-                        ClassName = student.StudentClass.Name
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                reply.Message = ex.Message;
-            }
-
-            return reply;
-        }
-
-        public async Task<MultipleStudentProfilesReply> GetProfileByClassAsync(IdRequest request, CallContext callContext = default)
-        {
-            MultipleStudentProfilesReply reply = new MultipleStudentProfilesReply();
-            try
-            {
-                List<Student>? students = await _studentRepository.GetByClassAsync(request.Id)!;
-                int count = students!.Count;
-
-                if (count == 0)
-                {
-                    throw new Exception("There is no student in database");
-                }
-
-                if (students == null || students.Count == 0)
-                {
-                    throw new Exception("There is no student in this page");
-                }
-
-                reply.Count = count;
-                reply.Students = new List<StudentProfile>();
-                foreach (var student in students)
-                {
-                    reply.Students.Add(new StudentProfile
-                    {
-                        Id = student.Id,
-                        FullName = student.FullName,
-                        Birthday = student.Birthday,
-                        Address = student.Address,
-                        ClassId = student.StudentClass.Id,
-                        ClassName = student.StudentClass.Name
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                reply.Message = ex.Message;
-            }
-
-            return reply;
-        }
-
-        public async Task<MultipleStudentProfilesReply> GetProfileByDateAsync(DateRequest request, CallContext callContext = default)
-        {
-            MultipleStudentProfilesReply reply = new MultipleStudentProfilesReply();
-            try
-            {
-                List<Student>? students = await _studentRepository.GetByDateAsync(request.DateStart, request.DateEnd)!;
-                int count = students!.Count;
-
-                if (count == 0)
-                {
-                    throw new Exception("There is no student in database");
-                }
-
-                if (students == null || students.Count == 0)
-                {
-                    throw new Exception("There is no student in this page");
-                }
-
-                reply.Count = count;
-                reply.Students = new List<StudentProfile>();
-                foreach (var student in students)
-                {
-                    reply.Students.Add(new StudentProfile
-                    {
-                        Id = student.Id,
-                        FullName = student.FullName,
-                        Birthday = student.Birthday,
-                        Address = student.Address,
-                        ClassId = student.StudentClass.Id,
-                        ClassName = student.StudentClass.Name
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                reply.Message = ex.Message;
-            }
-
-            return reply;
-        }
-
-        public async Task<MultipleStudentProfilesReply> GetProfileByNameAsync(NameRequest request, CallContext callContext = default)
-        {
-            MultipleStudentProfilesReply reply = new MultipleStudentProfilesReply();
-            try
-            {
-                List<Student>? students = await _studentRepository.GetByNameAsync(request.Name)!;
-                int count = await _studentRepository.CountAsync();
-
-                if (count == 0)
-                {
-                    throw new Exception("There is no student in database");
-                }
-
-                if (students == null || students.Count == 0)
-                {
-                    throw new Exception("There is no student in this page");
-                }
-
-                reply.Count = count;
-                reply.Students = new List<StudentProfile>();
-                foreach (var student in students)
-                {
-                    reply.Students.Add(new StudentProfile
-                    {
-                        Id = student.Id,
-                        FullName = student.FullName,
-                        Birthday = student.Birthday,
-                        Address = student.Address,
-                        ClassId = student.StudentClass.Id,
-                        ClassName = student.StudentClass.Name
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                reply.Message = ex.Message;
-            }
-
             return reply;
         }
 
@@ -356,7 +158,11 @@ namespace Server.Services
                         Birthday = student.Birthday,
                         Address = student.Address,
                         ClassId = student.StudentClass.Id,
-                        ClassName = student.StudentClass.Name
+                        ClassName = student.StudentClass.Name,
+                        ClassSubject = student.StudentClass.Subject,
+                        TeacherId = student.StudentClass.ClassTeacher.Id,
+                        TeacherFullName = student.StudentClass.ClassTeacher.FullName,
+                        TeacherBirthday = student.StudentClass.ClassTeacher.Birthday
                     });
                 }
             }
@@ -373,7 +179,7 @@ namespace Server.Services
             var reply = new MultipleStudentProfilesReply();
             try
             {
-                var studentField = new SearchStudentModel
+                var studentField = new SearchStudentDTO
                 {
                     Id = request.Id,
                     Name = request.Name,
@@ -413,7 +219,7 @@ namespace Server.Services
             return reply;
         }
 
-        public async Task<OperationReply> UpdateAsync(UpdateStudentRequest request, CallContext context = default)
+        public async Task<OperationReply> UpdateAsync(StudentProfile request, CallContext context = default)
         {
             OperationReply reply = new OperationReply();
             try

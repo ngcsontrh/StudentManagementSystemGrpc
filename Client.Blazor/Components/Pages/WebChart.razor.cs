@@ -11,8 +11,11 @@ namespace Client.Blazor.Components.Pages
         [Inject]
         public IStudentService StudentService { get; set; } = null!;
 
+        IChartComponent chart1 = null!;
+
         // models 
-        private List<StudentProfile>? students;
+        private List<StudentProfileModel>? students;
+        private List<ClassInformationModel>? classes;
 
         private string? errorMessage;
 
@@ -34,8 +37,53 @@ namespace Client.Blazor.Components.Pages
             }
             else
             {
-                students = studentReply.Students;
+                students = studentReply.Students.Select(s => new StudentProfileModel
+                {
+                    Id = s.Id,
+                    FullName = s.FullName,
+                    Address = s.Address,
+                    Birthday = s.Birthday,
+                    ClassId = s.ClassId,
+                    ClassName = s.ClassName,
+                }).ToList();
+
+                classes = studentReply.Students
+                .Select(s => new ClassInformationModel
+                    {
+                        Id = s.ClassId,
+                        Name = s.ClassName
+                    })
+                .DistinctBy(s => s.Id)
+                .ToList();
             }
+        }
+
+        private async Task LoadAllStudentsAge()
+        {
+            data1 = students!
+                    .GroupBy(s => (DateTime.Now.Year - s.Birthday.Year))
+                    .Select(s => new StudentAgeChartModel
+                    {
+                        Age = s.Key,
+                        NumberOfStudent = s.Count(),
+                    })
+                    .OrderBy(s => s.Age)
+                    .ToList();
+            await chart1.ChangeData(data1);
+        }
+
+        private async Task LoadStudentAgeClass(int classId)
+        {
+            data1 = students!
+                    .Where(s => s.ClassId == classId)
+                    .GroupBy(s => (DateTime.Now.Year - s.Birthday.Year))
+                    .Select(s => new StudentAgeChartModel
+                    {
+                        Age = s.Key,
+                        NumberOfStudent = s.Count(),
+                    })
+                    .ToList();
+            await chart1.ChangeData(data1);
         }
 
         private void LoadStudentAgeChart()
@@ -47,12 +95,13 @@ namespace Client.Blazor.Components.Pages
                         Age = s.Key,
                         NumberOfStudent = s.Count(),
                     })
+                    .OrderBy(s => s.Age)
                     .ToList();
-
+            
             config1 = new ColumnConfig
             {
                 AutoFit = true,
-                Padding = "auto",
+                Padding = new[] {40,40,40,40},
                 XField = "age",
                 YField = "numberOfStudent",
                 Meta = new
@@ -78,7 +127,7 @@ namespace Client.Blazor.Components.Pages
 
                 }
             };
-         }
+        }
 
         private void LoadClassChart()
         {
@@ -103,12 +152,12 @@ namespace Client.Blazor.Components.Pages
                     Type = "spider"
                 }
             };
-        }       
+        }
 
         protected override async Task OnInitializedAsync()
         {
             await LoadStudentsData();
-            if(students != null)
+            if (students != null)
             {
                 LoadStudentAgeChart();
                 LoadClassChart();

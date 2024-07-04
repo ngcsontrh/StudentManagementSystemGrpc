@@ -28,5 +28,11 @@ namespace Server.Repositories
 
             return clazz;
         }
+
+        public async Task<bool> AnyAsync(int id)
+        {
+            bool exists = await _session.Query<Class>().AnyAsync(c => c.Id == id);
+            return exists;
+        }
     }
 }

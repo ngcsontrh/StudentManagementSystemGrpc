@@ -2,7 +2,7 @@
 using Server;
 using Server.Entities;
 using Server.Repositories.Interfaces;
-using Shared.Models;
+using Shared.DTOs;
 using ISession = NHibernate.ISession;
 
 namespace Client.Blazor.Repositories
@@ -54,55 +54,18 @@ namespace Client.Blazor.Repositories
         {
             Student student = await _session.Query<Student>()
                 .Fetch(s => s.StudentClass)
+                .ThenFetch(c => c.ClassTeacher)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             return student;
         }
 
-        public async Task<List<Student>?> GetByAddressAsync(string address)
+        public async Task<List<Student>?> SearchAsync(SearchStudentDTO studentSearch)
         {
-            List<Student>? students = await _session.Query<Student>()
-                .Where(s => s.Address.Contains(address))
-                .Fetch(s => s.StudentClass)
-                .ToListAsync();
+            var query = _session.Query<Student>().AsQueryable();
+            query = Filter(query, studentSearch);
+            List<Student>? students = await query.ToListAsync();
             return students;
-        }
-
-        public async Task<List<Student>?> GetByClassAsync(int classId)
-        {
-            List<Student> students = await _session.Query<Student>()
-                .Where(s => s.StudentClass.Id == classId)
-                .Fetch(s => s.StudentClass)
-                .ToListAsync();
-            return students;
-        }
-    
-        public async Task<List<Student>?> GetByDateAsync(DateTime dateStart, DateTime dateEnd)
-        {
-            List<Student> students = await _session.Query<Student>()
-                .Where(s => s.Birthday.Date >= dateStart.Date && s.Birthday.Date <= dateEnd.Date)
-                .Fetch(s => s.StudentClass)
-                .ToListAsync();
-            return students;
-        }
-    
-        public async Task<List<Student>?> GetByNameAsync(string name)
-        {
-            List<Student>? students = await _session.Query<Student>()
-                .Where(s => s.FullName.Contains(name))
-                .Fetch(s => s.StudentClass)
-                .ToListAsync();
-            return students;
-        }
-    
-        public async Task<Student?> GetDetailsAsync(int id)
-        {
-            Student student = await _session.Query<Student>()
-                .Fetch(s => s.StudentClass)
-                    .ThenFetch(c => c.ClassTeacher)
-                .FirstOrDefaultAsync(s => s.Id == id);
-
-            return student;
         }
 
         public async Task<List<Student>?> GetWithPaginationAsync(int pageNumber = 1, int pageSize = 10)
@@ -110,18 +73,11 @@ namespace Client.Blazor.Repositories
             int pageSkip = (pageNumber - 1) * pageSize;
             var students = await _session.Query<Student>()
                             .Fetch(s => s.StudentClass)
+                            .ThenFetch(c => c.ClassTeacher)
                             .Skip(pageSkip)
                             .Take(pageSize)
                             .ToListAsync();
 
-            return students;
-        }
-
-        public async Task<List<Student>?> SearchAsync(SearchStudentModel studentSearch)
-        {
-            var query = _session.Query<Student>().AsQueryable();
-            query = Filter(query, studentSearch);
-            List<Student>? students = await query.ToListAsync();
             return students;
         }
 
@@ -135,7 +91,7 @@ namespace Client.Blazor.Repositories
         }
 
 
-        private IQueryable<Student>? Filter(IQueryable<Student> query, SearchStudentModel studentSearchField)
+        private IQueryable<Student>? Filter(IQueryable<Student> query, SearchStudentDTO studentSearchField)
         {
             if (studentSearchField.Id.HasValue)
             {
