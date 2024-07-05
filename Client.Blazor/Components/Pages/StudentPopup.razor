@@ -5,20 +5,20 @@
 
 <Drawer Visible="@IsVisible" Placement="right" Title="@("Update Student")" OnClose="ClosePopup" Width="500">
     <Form Model="@StudentProfile"
-          OnFinish="@(Status == "Update" ? UpdateStudent : Status == "Create" ? CreateStudent: async () => {})"
+          OnFinish="HandleOnSubmit"
           ValidateMode=@FormValidateMode.Complex
           RequiredMark=FormRequiredMark.Required>
-        @if(Status == "Details" || Status == "Update")
+        @if(Status == "Details" || Status == "Update" || Status == "Delete")
         {
             <FormItem Label="ID">
                 <Input @bind-Value="StudentProfile.Id" Disabled />
             </FormItem>
         }
         <FormItem Label="Full Name">
-            <Input @bind-Value="StudentProfile.FullName" Disabled=@(Status == "Details")/>
+            <Input @bind-Value="StudentProfile.FullName" Disabled=@(Status == "Details" || Status == "Delete")/>
         </FormItem>
         <FormItem Label="Birthday">
-            <DatePicker @bind-Value="StudentProfile.Birthday" Format="dd/MM/yyyy" Disabled=@(Status == "Details") DefaultValue="DateTime.Now" />
+            <DatePicker @bind-Value="StudentProfile.Birthday" Format="dd/MM/yyyy" Disabled=@(Status == "Details" || Status == "Delete") DefaultValue="DateTime.Now" />
         </FormItem>
         <Flex Gap="small">
             <FormItem Label="Class">
@@ -27,7 +27,7 @@
                         ItemValue="c => c.Id"
                         ItemLabel="c => c.Name"
                         Style="width: 120px"
-                        Disabled=@(Status == "Details")>
+                        Disabled=@(Status == "Details" || Status == "Delete")>
                 </Select>
             </FormItem>
             <FormItem Label="Class Subject">
@@ -40,9 +40,9 @@
             </FormItem>
         </Flex>
         <FormItem Label="Address">
-            <TextArea @bind-Value="StudentProfile.Address" MinRows="3" MaxRows="6" Disabled=@(Status == "Details") />
+            <TextArea @bind-Value="StudentProfile.Address" MinRows="3" MaxRows="6" Disabled=@(Status == "Details" || Status == "Delete") />
         </FormItem>
-        @if (Status == "Details")
+        @if (Status == "Details" || Status == "Delete")
         {
             <FormItem Label="Teacher ID">
                 <Input @bind-Value="StudentProfile.TeacherId" Disabled />

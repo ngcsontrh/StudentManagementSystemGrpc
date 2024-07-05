@@ -35,43 +35,48 @@ namespace Client.Blazor.Components.Pages
 
         bool isOpenUpdatePopup = false; // true if open update
         bool isOpenDetailsPopup = false; // true if open details
+        bool isDeletePopup = false;
         bool isOpenCreatePopup = false;
         bool isStudentSearchedFound = false;
 
-        private void OpenUpdatePopup(StudentProfileModel student)
+        private void OpenPopup(string status, StudentProfileModel? student = null)
         {
-            isOpenUpdatePopup = true;
-            this.student = student;
-        }
-
-        private void OpenCreatePopup()
-        {
-            this.student = new StudentProfileModel()
+            this.student = student ?? new StudentProfileModel();
+            switch (status)
             {
-                Birthday = DateTime.Now
-            };
-            isOpenCreatePopup = true;
+                case "Update":
+                    isOpenUpdatePopup = true;
+                    break;
+                case "Create":
+                    isOpenCreatePopup = true;
+                    break;
+                case "Details":
+                    isOpenDetailsPopup = true;
+                    break;
+                case "Delete":
+                    isDeletePopup = true;
+                    break;
+            }
         }
 
-        private void OpenDetailsPopup(StudentProfileModel student)
+        private async Task ClosePopup(string status)
         {
-            this.student = student;
-            isOpenDetailsPopup = true;
-        }
-
-        private async Task CloseUpdatePopup()
-        {
-            isOpenUpdatePopup = false;
-        }
-
-        private async Task CloseCreatePopup()
-        {
-            isOpenCreatePopup = false;
-        }
-
-        private async Task CloseDetailsPopup()
-        {
-            isOpenDetailsPopup = false;
+            student = new StudentProfileModel();
+            switch (status)
+            {
+                case "Update":
+                    isOpenUpdatePopup = false;
+                    break;
+                case "Create":
+                    isOpenCreatePopup = false;
+                    break;
+                case "Details":
+                    isOpenDetailsPopup = false;
+                    break;
+                case "Delete":
+                    isDeletePopup = false;
+                    break;
+            }
         }
 
         // load students with pagination
@@ -83,16 +88,7 @@ namespace Client.Blazor.Components.Pages
                 PageSize = pageSize,
             });
 
-            if (reply.Students == null  && reply.Count == 0)
-            {
-                _ =  Notification.Open(new NotificationConfig()
-                {
-                    Message = "Error",
-                    Description = reply.Message,
-                    NotificationType = NotificationType.Error
-                });
-            }
-            else if(reply.Students != null)
+            if (reply.Students != null)
             {
                 students = reply.Students.Select(s => new StudentProfileModel
                 {
@@ -108,6 +104,23 @@ namespace Client.Blazor.Components.Pages
                     TeacherFullName = s.TeacherFullName
                 }).ToList();
                 total = reply.Count;
+            }
+            else
+            {
+                if (reply.Count != 0)
+                {
+                    pageNumber -= 1;
+                    await LoadStudentsAsync();
+                }
+                else
+                {
+                    _ = Notification.Open(new NotificationConfig()
+                    {
+                        Message = "Error",
+                        Description = reply.Message,
+                        NotificationType = NotificationType.Error
+                    });
+                }
             }
         }
 
@@ -137,65 +150,29 @@ namespace Client.Blazor.Components.Pages
             }
         }
 
-        // delete student by id
-        private async Task HandleOnDeleteAsync(int id)
+        private void OnSort(MenuItem menu)
         {
-            var reply = await StudentService.DeleteAsync(new IdRequest { Id = id });
-            if (reply.Success)
+            switch(menu.Key)
             {
-                pageSize = 10;
-                pageNumber = 1;
-                await LoadStudentsAsync();
-                if (students != null && students.Count == 1)
-                {
-                    pageNumber-= 1;
-                }
-                _ = Notification.Open(new NotificationConfig()
-                {
-                    Message = "Success",
-                    Description = "Student has been deleted",
-                    NotificationType = NotificationType.Success
-                });
+                case "sbName": 
+                    students = students!.OrderBy(s => s.FullName).ToList(); 
+                    break;
+                case "sbId": 
+                    students = students!.OrderBy(s => s.Id).ToList(); 
+                    break;
+                case "sbBirthday":
+                    students = students!.OrderBy(s => s.Birthday).ToList();
+                    break;
+                case "sbAddress":
+                    students = students!.OrderBy(s => s.Address).ToList();
+                    break;
+                case "sbClassId":
+                    students = students = students!.OrderBy(s => s.ClassId).ToList(); 
+                    break;
+                case "sbClassName":
+                    students = students = students!.OrderBy(s => s.ClassName).ToList();
+                    break;
             }
-            else
-            {
-                _ = Notification.Open(new NotificationConfig()
-                {
-                    Message = "Success",
-                    Description = reply.Message,
-                    NotificationType = NotificationType.Error
-                });
-            }
-        }
-
-        private void HandleSortByName()
-        {
-            students = students!.OrderBy(s => s.FullName).ToList();
-        }
-
-        private void HandleSortById()
-        {
-            students = students!.OrderBy(s => s.Id).ToList();
-        }
-
-        private void HandleSortByBirthday()
-        {
-            students = students!.OrderBy(s => s.Birthday).ToList();
-        }
-
-        private void HandleSortByAddress()
-        {
-            students = students!.OrderBy(s => s.Address).ToList();
-        }
-
-        private void HandleSortByClassId()
-        {
-            students = students!.OrderBy(s => s.ClassId).ToList();
-        }
-
-        private void HandleSortByClassName()
-        {
-            students = students!.OrderBy(s => s.ClassName).ToList();
         }
 
         private async Task OnSearchFound(StudentPaginatedModel paginatedModel)

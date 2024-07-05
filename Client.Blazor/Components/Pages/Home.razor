@@ -13,27 +13,27 @@
 </div>
 
 <div class="d-flex justify-content-between align-items-center">
-    <Button Type="primary" OnClick="OpenCreatePopup">Add new student</Button>
+    <Button Type="primary" OnClick="@(e => OpenPopup("Create"))">Add new student</Button>
     <div>
-        <Dropdown>
+        <Dropdown Trigger="@(new Trigger[] { Trigger.Click })">
             <Overlay>
-                <Menu>
-                    <MenuItem OnClick="HandleSortById">
+                <Menu OnMenuItemClicked="OnSort">
+                    <MenuItem Key="sbId">
                         <Text>Sort by Id</Text>
                     </MenuItem>
-                    <MenuItem OnClick="HandleSortByName">                   
+                    <MenuItem Key="sbName">
                         <Text>Sort by Name</Text>
                     </MenuItem>
-                    <MenuItem OnClick="HandleSortByBirthday">
+                    <MenuItem Key="sbBirthday">
                         <Text>Sort by Birthday</Text>
                     </MenuItem>
-                    <MenuItem OnClick="HandleSortByAddress">
+                    <MenuItem Key="sbAddress">
                         <Text>Sort by Address</Text>
                     </MenuItem>
-                    <MenuItem OnClick="HandleSortByClassId">
+                    <MenuItem Key="sbClassId">
                         <Text>Sort by Class Id</Text>
                     </MenuItem>
-                    <MenuItem OnClick="HandleSortByClassName">
+                    <MenuItem Key="sbClassName">
                         <Text>Sort by Class Name</Text>
                     </MenuItem>
                 </Menu>
@@ -60,43 +60,44 @@
            OnPageSizeChange="HandlePageSizeChange">
         <ColumnDefinition Title="Index">
             @{
-                int index = students.IndexOf(context) + 1 + ((pageNumber - 1) * pageSize);
+                int index = students!.IndexOf(context) + 1 + ((pageNumber - 1) * pageSize);
             }
             @index
         </ColumnDefinition>
-        <PropertyColumn Property="s => s.Id" Title="Id" Sortable />
-        <PropertyColumn Property="s => s.FullName" Title="Full Name" Sortable />
-        <PropertyColumn Property="s => s.Birthday" Title="Birthday" Format="dd/MM/yyyy" Sortable />
-        <PropertyColumn Property="s => s.Address" Title="Address" Sortable />
-        <PropertyColumn Property="s => s.ClassId" Title="Class Id" Sortable />
-        <PropertyColumn Property="s => s.ClassName" Title="Class Name" Sortable />
+        <PropertyColumn Property="s => s.Id" Title="Id" />
+        <PropertyColumn Property="s => s.FullName" Title="Full Name" />
+        <PropertyColumn Property="s => s.Birthday" Title="Birthday" Format="dd/MM/yyyy" />
+        <PropertyColumn Property="s => s.Address" Title="Address" />
+        <PropertyColumn Property="s => s.ClassId" Title="Class Id" />
+        <PropertyColumn Property="s => s.ClassName" Title="Class Name" />
         <ActionColumn Title="Action" Class="d-flex justify-content-center align-items-center gap-2">
-            <Popconfirm Title="Sure to delete?"
+            @* <Popconfirm Title="Sure to delete?"
                         OnConfirm="()=> HandleOnDeleteAsync(context.Id)"
                         OkText="Yes"
                         CancelText="No">
                 <Button Danger>
                     Delete
                 </Button>
-            </Popconfirm>
-
-            <Button OnClick="() => OpenUpdatePopup(context)">Update</Button>
-            <Button OnClick="() => OpenDetailsPopup(context)">Details</Button>
+            </Popconfirm> *@
+            <Button Danger OnClick="@(() => OpenPopup("Delete", context))">Delete</Button>
+            <Button OnClick="@(() => OpenPopup("Update", context))">Update</Button>
+            <Button OnClick="@(() => OpenPopup("Details", context))">Details</Button>
         </ActionColumn>
     </Table>
 
 @if (isOpenUpdatePopup)
-{
-    @*     <UpdatePopup IsVisible ="isOpenUpdatePopup" StudentProfile="student" ReloadStudents="LoadStudentsAsync" OnClose="CloseUpdatePopup"/> *@
-    <StudentPopup IsVisible="isOpenUpdatePopup" StudentProfile="student" ReloadStudents="LoadStudentsAsync" OnClose="CloseUpdatePopup" Status="Update" />
+{    
+    <StudentPopup IsVisible="isOpenUpdatePopup" StudentProfile="student" ReloadStudents="LoadStudentsAsync" OnClose="ClosePopup" Status="Update" />
 }
 @if (isOpenDetailsPopup)
 {
-    @* <DetailsPopup IsVisible="isOpenDetailsPopup" Id="studentDetailsId" OnClose="CloseDetailsPopup"/> *@
-    <StudentPopup IsVisible="isOpenDetailsPopup" StudentProfile="student" OnClose="CloseDetailsPopup" Status="Details" />
+    <StudentPopup IsVisible="isOpenDetailsPopup" StudentProfile="student" OnClose="ClosePopup" Status="Details" />
 }
 @if (isOpenCreatePopup)
 {
-    @* <CreatePopup IsVisible="isOpenCreatePopup" ReloadStudents="LoadStudentsAsync" OnClose="CloseCreatePopup" /> *@
-    <StudentPopup IsVisible="isOpenCreatePopup" ReloadStudents="LoadStudentsAsync" OnClose="CloseCreatePopup" Status="Create" />
+    <StudentPopup IsVisible="isOpenCreatePopup" StudentProfile="student" ReloadStudents="LoadStudentsAsync" OnClose="ClosePopup" Status="Create" />
+}
+@if (isDeletePopup)
+{
+    <StudentPopup IsVisible="isDeletePopup" StudentProfile="student" ReloadStudents="LoadStudentsAsync" OnClose="ClosePopup" Status="Delete" />
 }

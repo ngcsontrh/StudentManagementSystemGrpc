@@ -20,7 +20,7 @@ namespace Client.Blazor.Components.Pages
         public EventCallback ReloadStudents { get; set; }
 
         [Parameter]
-        public EventCallback OnClose { get; set; }
+        public EventCallback<string> OnClose { get; set; }
 
         [Inject]
         public IStudentService StudentService { get; set; } = null!;
@@ -35,8 +35,27 @@ namespace Client.Blazor.Components.Pages
 
         private async Task ClosePopup()
         {
-            await OnClose.InvokeAsync();
+            await OnClose.InvokeAsync(Status);
             IsVisible = false;
+        }
+
+        private async Task HandleOnSubmit()
+        {
+            switch (Status)
+            {
+                case "Create":
+                    await CreateStudentAsync();
+                    break;
+                case "Update":
+                    await UpdateStudentAsync();
+                    break;
+                case "Delete":
+                    await DeleteStudentAsync();
+                    break;
+                case "Details":
+                    await Task.Run(() => { });
+                    break;
+            }
         }
 
         async Task LoadClassesAsync()
@@ -64,14 +83,10 @@ namespace Client.Blazor.Components.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            if (Status == "Create")
-            {
-                StudentProfile = new StudentProfileModel();
-            }
             await LoadClassesAsync();
         }
 
-        private async Task CreateStudent()
+        private async Task CreateStudentAsync()
         {
             var reply = await StudentService.CreateAsync(new StudentProfile
             {
@@ -82,18 +97,15 @@ namespace Client.Blazor.Components.Pages
             });
             if (reply.Success)
             {
-                StudentProfile = new StudentProfileModel();
                 _ = Notification.Open(new NotificationConfig()
                 {
                     Message = "Success",
                     Description = "Added new student",
                     NotificationType = NotificationType.Success
                 });
-                await ReloadStudents.InvokeAsync();
             }
             else
             {
-                StudentProfile = new StudentProfileModel();
                 _ = Notification.Open(new NotificationConfig()
                 {
                     Message = "Error",
@@ -101,11 +113,37 @@ namespace Client.Blazor.Components.Pages
                     NotificationType = NotificationType.Error
                 });
             }
-
+            await ReloadStudents.InvokeAsync();
             await ClosePopup();
         }
 
-        private async Task UpdateStudent()
+        // delete student by id
+        private async Task DeleteStudentAsync()
+        {
+            var reply = await StudentService.DeleteAsync(new IdRequest { Id = StudentProfile.Id });
+            if (reply.Success)
+            {
+                _ = Notification.Open(new NotificationConfig()
+                {
+                    Message = "Success",
+                    Description = "Student has been deleted",
+                    NotificationType = NotificationType.Success
+                });
+            }
+            else
+            {
+                _ = Notification.Open(new NotificationConfig()
+                {
+                    Message = "Success",
+                    Description = reply.Message,
+                    NotificationType = NotificationType.Error
+                });
+            }
+            await ReloadStudents.InvokeAsync();
+            await ClosePopup();
+        }
+
+        private async Task UpdateStudentAsync()
         {
             var reply = await StudentService.UpdateAsync(new StudentProfile
             {
@@ -117,18 +155,15 @@ namespace Client.Blazor.Components.Pages
             });
             if (reply.Success)
             {
-                StudentProfile = new StudentProfileModel();
                 _ = Notification.Open(new NotificationConfig()
                 {
                     Message = "Success",
                     Description = "Updated",
                     NotificationType = NotificationType.Success
                 });
-                await ReloadStudents.InvokeAsync();
             }
             else
             {
-                StudentProfile = new StudentProfileModel();
                 _ = Notification.Open(new NotificationConfig()
                 {
                     Message = "Error",
@@ -136,6 +171,7 @@ namespace Client.Blazor.Components.Pages
                     NotificationType = NotificationType.Error
                 });
             }
+            await ReloadStudents.InvokeAsync();
             await ClosePopup();
         }
 

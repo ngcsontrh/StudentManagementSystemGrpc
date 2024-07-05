@@ -136,19 +136,14 @@ namespace Server.Services
             {
                 List<Student>? students = await _studentRepository.GetWithPaginationAsync(request.PageNumber, request.PageSize);
                 int count = await _studentRepository.CountAsync();
-
-                if (count == 0)
-                {
-                    throw new Exception("There is no student in database");
-                }
+                reply.Count = count;
 
                 if (students == null || students.Count == 0)
                 {
                     throw new Exception("There is no student in this page");
                 }
-
-                reply.Count = count;
                 reply.Students = new List<StudentProfile>();
+
                 foreach (var student in students)
                 {
                     reply.Students.Add(new StudentProfile
