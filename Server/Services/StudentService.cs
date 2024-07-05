@@ -219,6 +219,55 @@ namespace Server.Services
             return reply;
         }
 
+        public async Task<MultipleStudentProfilesReply> SearchStudentWithPagination(SearchStudentWithPaginationRequest request, CallContext callContext = default)
+        {
+            var reply = new MultipleStudentProfilesReply();
+            try
+            {
+                var studentField = new SearchStudentDTO
+                {
+                    Id = request.Id,
+                    Name = request.Name,
+                    Address = request.Address,
+                    ClassId = request.ClassId,
+                    StartDate = request.StartDate,
+                    EndDate = request.EndDate
+                };
+                List<Student>? students = await _studentRepository.SearchWithPaginationAsync(studentField, pageSize: request.PageSize, pagenNumber: request.PageNumber);
+                int count = await _studentRepository.CountWithSearch(studentField);
+                if (count == 0)
+                {
+                    throw new Exception("There is no student in the database");
+                }
+
+                if (students == null || students.Count == 0)
+                {
+                    throw new Exception("There is no student in this page");
+                }
+                reply.Students = new List<StudentProfile>();
+                reply.Count = count;
+                reply.Students = students.Select(student => new StudentProfile
+                {
+                    Id = student.Id,
+                    FullName = student.FullName,
+                    Birthday = student.Birthday,
+                    Address = student.Address,
+                    ClassId = student.StudentClass.Id,
+                    ClassName = student.StudentClass.Name,
+                    ClassSubject = student.StudentClass.Subject,
+                    TeacherId = student.StudentClass.ClassTeacher.Id,
+                    TeacherFullName = student.StudentClass.ClassTeacher.FullName,
+                    TeacherBirthday = student.StudentClass.ClassTeacher.Birthday
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                reply.Message = ex.Message;
+            }
+
+            return reply;
+        }
+
         public async Task<OperationReply> UpdateAsync(StudentProfile request, CallContext context = default)
         {
             OperationReply reply = new OperationReply();
