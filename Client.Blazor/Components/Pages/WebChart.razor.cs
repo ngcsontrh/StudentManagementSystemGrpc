@@ -11,21 +11,24 @@ namespace Client.Blazor.Components.Pages
         [Inject]
         public IStudentService StudentService { get; set; } = null!;
 
+        [Inject]
+        public NotificationService Notification {  get; set; } = null!;
+
         IChartComponent chart1 = null!;
 
         // models 
         private List<StudentProfileModel>? students;
         private List<ClassInformationModel>? classes;
 
-        private string? errorMessage;
-
         // model datatype for charts
         private List<StudentAgeChartModel> data1 = null!;
         private List<ClassChartModel> data2 = null!;
 
         // config charts
-        private PieConfig config2 = null!;
         private ColumnConfig config1 = null!;
+        private PieConfig config2 = null!;
+
+        bool isFirstRender = true;
 
         // load all students for analysis.
         private async Task LoadStudentsData()
@@ -33,7 +36,12 @@ namespace Client.Blazor.Components.Pages
             var studentReply = await StudentService.GetAllProfilesAsync(new Shared.Empty());
             if (studentReply.Students == null)
             {
-                errorMessage = studentReply.Message;
+                _ = Notification.Open(new NotificationConfig()
+                {
+                    Message = "Error",
+                    Description = studentReply.Message,
+                    NotificationType = NotificationType.Error
+                });
             }
             else
             {
@@ -49,59 +57,60 @@ namespace Client.Blazor.Components.Pages
 
                 classes = studentReply.Students
                 .Select(s => new ClassInformationModel
-                    {
-                        Id = s.ClassId,
-                        Name = s.ClassName
-                    })
+                {
+                    Id = s.ClassId,
+                    Name = s.ClassName
+                })
                 .DistinctBy(s => s.Id)
                 .ToList();
+
+                data1 = students!
+                  .GroupBy(s => (DateTime.Now.Year - s.Birthday.Year))
+                  .Select(s => new StudentAgeChartModel
+                  {
+                      Age = s.Key,
+                      NumberOfStudent = s.Count(),
+                  })
+                  .OrderBy(s => s.Age)
+                  .ToList();
+
+                data2 = students!
+                    .GroupBy(s => s.ClassName)
+                    .Select(s => new ClassChartModel
+                    {
+                        ClassName = s.Key,
+                        NumberOfStudent = s.Count()
+                    })
+                    .ToList();
             }
         }
 
-        private async Task LoadAllStudentsAge()
+        private async Task LoadStudentAgeClass(int classId = -1)
         {
-            data1 = students!
+            var temp = students!.ToList();
+            if(classId != -1)
+            {
+                temp = temp.Where(s => s.ClassId == classId).ToList();
+            }
+            data1 = temp
                     .GroupBy(s => (DateTime.Now.Year - s.Birthday.Year))
                     .Select(s => new StudentAgeChartModel
                     {
                         Age = s.Key,
                         NumberOfStudent = s.Count(),
                     })
-                    .OrderBy(s => s.Age)
-                    .ToList();
-            await chart1.ChangeData(data1);
-        }
-
-        private async Task LoadStudentAgeClass(int classId)
-        {
-            data1 = students!
-                    .Where(s => s.ClassId == classId)
-                    .GroupBy(s => (DateTime.Now.Year - s.Birthday.Year))
-                    .Select(s => new StudentAgeChartModel
-                    {
-                        Age = s.Key,
-                        NumberOfStudent = s.Count(),
-                    })
-                    .ToList();
-            await chart1.ChangeData(data1);
-        }
-
-        private void LoadStudentAgeChart()
-        {
-            data1 = students!
-                    .GroupBy(s => (DateTime.Now.Year - s.Birthday.Year))
-                    .Select(s => new StudentAgeChartModel
-                    {
-                        Age = s.Key,
-                        NumberOfStudent = s.Count(),
-                    })
-                    .OrderBy(s => s.Age)
                     .ToList();
             
+            await chart1.ChangeData(data1, !isFirstRender);
+            
+        }
+
+        void Config()
+        {
             config1 = new ColumnConfig
             {
                 AutoFit = true,
-                Padding = new[] {40,40,40,40},
+                Padding = new[] { 40, 40, 40, 40 },
                 XField = "age",
                 YField = "numberOfStudent",
                 Meta = new
@@ -127,18 +136,6 @@ namespace Client.Blazor.Components.Pages
 
                 }
             };
-        }
-
-        private void LoadClassChart()
-        {
-            data2 = students!
-                    .GroupBy(s => s.ClassName)
-                    .Select(s => new ClassChartModel
-                    {
-                        ClassName = s.Key,
-                        NumberOfStudent = s.Count()
-                    })
-                    .ToList();
 
             config2 = new PieConfig
             {
@@ -153,15 +150,16 @@ namespace Client.Blazor.Components.Pages
                 }
             };
         }
-
         protected override async Task OnInitializedAsync()
         {
             await LoadStudentsData();
-            if (students != null)
-            {
-                LoadStudentAgeChart();
-                LoadClassChart();
-            }
+            Config();
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await chart1.ChangeData(data1);
+            isFirstRender = false;
         }
     }
 }

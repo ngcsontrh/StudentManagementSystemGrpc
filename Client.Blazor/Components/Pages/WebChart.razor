@@ -2,14 +2,14 @@
 @rendermode InteractiveServer
 <Tabs>
     <TabPane Key="1">
-        <TabTemplate>Thống kê số tuổi sinh viên</TabTemplate>
+        <TabTemplate>The statistics of students' ages</TabTemplate>
         <ChildContent>
             <Dropdown Class="px-3" Trigger="@(new Trigger[] { Trigger.Click })">
                 <Overlay>
                     <Menu>
                         @if(classes != null)
                         {
-                            <MenuItem OnClick="LoadAllStudentsAge">
+                            <MenuItem OnClick="() => LoadStudentAgeClass()">
                                 All
                             </MenuItem>
                             @foreach(var clazz in classes)
@@ -34,7 +34,7 @@
     </TabPane>
 
     <TabPane Key="2">
-        <TabTemplate>Số lượng sinh viên trong lớp</TabTemplate>
+        <TabTemplate>Statistics of the number of students in the class</TabTemplate>
         <ChildContent>
             <Pie Data="data2" Config="config2" />
         </ChildContent>
