@@ -1,4 +1,5 @@
-﻿using ProtoBuf.Grpc;
+﻿using AutoMapper;
+using ProtoBuf.Grpc;
 using Server.Entities;
 using Server.Repositories.Interfaces;
 using Shared;
@@ -8,9 +9,11 @@ namespace Server.Services
     public class ClassService : IClassService
     {
         private readonly IClassRepository _classRepository;
-        public ClassService(IClassRepository classRepository)
+        private readonly IMapper _mapper;
+        public ClassService(IClassRepository classRepository, IMapper mapper)
         {
             _classRepository = classRepository;
+            _mapper = mapper;
         }
         public async Task<MultipleClassInfosReply> GetAllClassesInfo(Empty request, CallContext context = default)
         {
@@ -24,16 +27,7 @@ namespace Server.Services
                 }
 
                 reply.Count = classes.Count;
-                reply.Classes = new List<ClassInfo>();
-                foreach (Class clazz in classes)
-                {
-                    reply.Classes.Add(new ClassInfo
-                    {
-                        Id = clazz.Id,
-                        Name = clazz.Name,
-                        Subject = clazz.Subject,
-                    });
-                }
+                reply.Classes = _mapper.Map<List<ClassInfo>>(classes);
             }
             catch (Exception e)
             {
@@ -41,6 +35,16 @@ namespace Server.Services
             }
 
             return reply;
+        }
+
+        public async Task<ClassChart> GetClassChartAsync(Empty request, CallContext callContext = default)
+        {
+            var chartData = await _classRepository.GetClassChartAsync();
+            ClassChart chart = new ClassChart()
+            {
+                ChartData = _mapper.Map<List<ClassStudentCount>>(chartData)
+            };
+            return chart;
         }
     }
 }

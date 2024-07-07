@@ -1,8 +1,9 @@
-﻿using ProtoBuf.Grpc;
+﻿using AutoMapper;
+using ProtoBuf.Grpc;
+using Server.DTOs;
 using Server.Entities;
 using Server.Repositories.Interfaces;
 using Shared;
-using Shared.DTOs;
 
 namespace Server.Services
 {
@@ -10,11 +11,13 @@ namespace Server.Services
     {
         private readonly IStudentRepository _studentRepository;
         private readonly IClassRepository _classRepository;
+        private readonly IMapper _mapper;
 
-        public StudentService(IClassRepository classRepository, IStudentRepository studentRepository)
+        public StudentService(IClassRepository classRepository, IStudentRepository studentRepository, IMapper mapper)
         {
             _studentRepository = studentRepository;
             _classRepository = classRepository;
+            _mapper = mapper;
         }
         public async Task<OperationReply> CreateAsync(StudentProfile request, CallContext context = default)
         {
@@ -27,13 +30,7 @@ namespace Server.Services
                     throw new Exception($"There is no class id = {request.ClassId}");
                 }
 
-                Student student = new Student
-                {
-                    FullName = request.FullName,
-                    Birthday = request.Birthday,
-                    Address = request.Address,
-                    StudentClass = clazz
-                };
+                Student student = _mapper.Map<Student>(request);
                 await _studentRepository.CreateAsync(student);
                 reply.Success = true;
             }
@@ -76,19 +73,7 @@ namespace Server.Services
                 }
 
                 reply.Count = students.Count;
-                reply.Students = students.Select(s => new StudentProfile
-                {
-                    Id = s.Id,
-                    FullName = s.FullName,
-                    Birthday = s.Birthday,
-                    Address = s.Address,
-                    ClassId = s.StudentClass.Id,
-                    ClassName = s.StudentClass.Name,
-                    ClassSubject = s.StudentClass.Subject,
-                    TeacherId = s.StudentClass.ClassTeacher.Id,
-                    TeacherFullName = s.StudentClass.ClassTeacher.FullName,
-                    TeacherBirthday = s.StudentClass.ClassTeacher.Birthday
-                }).ToList();
+                reply.Students = _mapper.Map<List<StudentProfile>>(students);
             }
             catch (Exception ex)
             {
@@ -108,19 +93,7 @@ namespace Server.Services
                     throw new Exception($"There is no student id = {request.Id}");
                 }
 
-                reply.Student = new StudentProfile()
-                {
-                    Id = student.Id,
-                    FullName = student.FullName,
-                    Birthday = student.Birthday,
-                    Address = student.Address,
-                    ClassId = student.StudentClass.Id,
-                    ClassName = student.StudentClass.Name,
-                    ClassSubject = student.StudentClass.Subject,
-                    TeacherId = student.StudentClass.ClassTeacher.Id,
-                    TeacherFullName = student.StudentClass.ClassTeacher.FullName,
-                    TeacherBirthday = student.StudentClass.ClassTeacher.Birthday
-                };
+                reply.Student = _mapper.Map<StudentProfile>(student);
             }
             catch (Exception ex)
             {
@@ -129,131 +102,19 @@ namespace Server.Services
             return reply;
         }
 
-        public async Task<MultipleStudentProfilesReply> GetWithPaginationAsync(PaginationRequest request, CallContext context = default)
-        {
-            MultipleStudentProfilesReply reply = new MultipleStudentProfilesReply();
-            try
-            {
-                List<Student>? students = await _studentRepository.GetWithPaginationAsync(request.PageNumber, request.PageSize);
-                int count = await _studentRepository.CountAsync();
-                reply.Count = count;
-
-                if (students == null || students.Count == 0)
-                {
-                    throw new Exception("There is no student in this page");
-                }
-                reply.Students = new List<StudentProfile>();
-
-                foreach (var student in students)
-                {
-                    reply.Students.Add(new StudentProfile
-                    {
-                        Id = student.Id,
-                        FullName = student.FullName,
-                        Birthday = student.Birthday,
-                        Address = student.Address,
-                        ClassId = student.StudentClass.Id,
-                        ClassName = student.StudentClass.Name,
-                        ClassSubject = student.StudentClass.Subject,
-                        TeacherId = student.StudentClass.ClassTeacher.Id,
-                        TeacherFullName = student.StudentClass.ClassTeacher.FullName,
-                        TeacherBirthday = student.StudentClass.ClassTeacher.Birthday
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                reply.Message = ex.Message;
-            }
-
-            return reply;
-        }
-
-        public async Task<MultipleStudentProfilesReply> SearchStudentAsync(SearchRequest request, CallContext callContext = default)
+        public async Task<MultipleStudentProfilesReply> GetPaginationAsync(PaginationRequest request, CallContext callContext = default)
         {
             var reply = new MultipleStudentProfilesReply();
             try
             {
-                var studentField = new SearchStudentDTO
+                SearchStudentDTO studentField = _mapper.Map<SearchStudentDTO>(request);
+                var searchResult = await _studentRepository.GetPaginationAsync(studentField, pageSize: request.PageSize, pagenNumber: request.PageNumber);
+                reply.Count = searchResult.Total;
+                if (reply.Count == 0)
                 {
-                    Id = request.Id,
-                    Name = request.Name,
-                    Address = request.Address,
-                    ClassId = request.ClassId,
-                    StartDate = request.StartDate,
-                    EndDate = request.EndDate
-                };
-                List<Student>? students = await _studentRepository.SearchAsync(studentField);
-                if (students == null || students.Count == 0)
-                {
-                    throw new Exception("There is no students");
+                    throw new Exception("There is no student");
                 }
-                else
-                {
-                    reply.Students = new List<StudentProfile>();
-                    reply.Count = reply.Students.Count;
-                    foreach (var student in students)
-                    {
-                        reply.Students.Add(new StudentProfile
-                        {
-                            Id = student.Id,
-                            FullName = student.FullName,
-                            Birthday = student.Birthday,
-                            Address = student.Address,
-                            ClassId = student.StudentClass.Id,
-                            ClassName = student.StudentClass.Name
-                        });
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                reply.Message = ex.Message;
-            }
-
-            return reply;
-        }
-
-        public async Task<MultipleStudentProfilesReply> SearchStudentWithPagination(SearchStudentWithPaginationRequest request, CallContext callContext = default)
-        {
-            var reply = new MultipleStudentProfilesReply();
-            try
-            {
-                var studentField = new SearchStudentDTO
-                {
-                    Id = request.Id,
-                    Name = request.Name,
-                    Address = request.Address,
-                    ClassId = request.ClassId,
-                    StartDate = request.StartDate,
-                    EndDate = request.EndDate
-                };
-                List<Student>? students = await _studentRepository.SearchWithPaginationAsync(studentField, pageSize: request.PageSize, pagenNumber: request.PageNumber);
-                int count = await _studentRepository.CountWithSearch(studentField);
-                if (count == 0)
-                {
-                    throw new Exception("There is no student in the database");
-                }
-
-                if (students == null || students.Count == 0)
-                {
-                    throw new Exception("There is no student in this page");
-                }
-                reply.Students = new List<StudentProfile>();
-                reply.Count = count;
-                reply.Students = students.Select(student => new StudentProfile
-                {
-                    Id = student.Id,
-                    FullName = student.FullName,
-                    Birthday = student.Birthday,
-                    Address = student.Address,
-                    ClassId = student.StudentClass.Id,
-                    ClassName = student.StudentClass.Name,
-                    ClassSubject = student.StudentClass.Subject,
-                    TeacherId = student.StudentClass.ClassTeacher.Id,
-                    TeacherFullName = student.StudentClass.ClassTeacher.FullName,
-                    TeacherBirthday = student.StudentClass.ClassTeacher.Birthday
-                }).ToList();
+                reply.Students = _mapper.Map<List<StudentProfile>>(searchResult.Students);
             }
             catch (Exception ex)
             {
@@ -294,5 +155,26 @@ namespace Server.Services
 
             return reply;
         }
+
+        public async Task<StudentAgeChart> GetStudentAgeChartAsync(IdRequest classIdRequest, CallContext callContext = default)
+        {
+            var chartData = await _studentRepository.GetStudentAgesChartAsync(classIdRequest.Id);
+            StudentAgeChart studentAgeChart = new StudentAgeChart
+            {
+                ChartData = _mapper.Map<List<StudentAge>>(chartData)
+            };
+
+            return studentAgeChart;
+        }
+
+        public async Task<StudentCount> GetStudentCountAsync(Empty request, CallContext callContext = default)
+        {
+            int total = await _studentRepository.CountAsync();
+            StudentCount result = new StudentCount
+            {
+                Total = total
+            };
+            return result;
+        }
     }
-}
+}   

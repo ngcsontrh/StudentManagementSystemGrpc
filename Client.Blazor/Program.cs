@@ -1,4 +1,5 @@
 using Client.Blazor.Components;
+using Client.Blazor.Mappers;
 using Grpc.Net.Client;
 using ProtoBuf.Grpc.Client;
 using Shared;
@@ -23,6 +24,8 @@ namespace Client.Blazor
             builder.Services.AddRazorComponents().AddInteractiveServerComponents();
                 
             builder.Services.AddAntDesign();
+            builder.Services.AddAutoMapper(typeof(StudentMapper));
+            builder.Services.AddAutoMapper(typeof(ClassMapper));
 
             // Add DI grpc services
             builder.Services.AddScoped(provider =>

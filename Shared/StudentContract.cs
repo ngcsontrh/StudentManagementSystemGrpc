@@ -27,23 +27,46 @@ namespace Shared
         Task<MultipleStudentProfilesReply> GetAllProfilesAsync(Empty request, CallContext context = default);
 
         [OperationContract]
-        Task<MultipleStudentProfilesReply> GetWithPaginationAsync(PaginationRequest request, CallContext context = default);
+        Task<MultipleStudentProfilesReply> GetPaginationAsync(PaginationRequest request, CallContext callContext = default);
 
-        [OperationContract] 
-        Task<MultipleStudentProfilesReply> SearchStudentAsync(SearchRequest request, CallContext callContext = default);
+        [OperationContract]
+        Task<StudentAgeChart> GetStudentAgeChartAsync(IdRequest classIdRequest, CallContext callContext = default);
+
+        [OperationContract]
+        Task<StudentCount> GetStudentCountAsync(Empty request, CallContext callContext = default);
     }
 
     [DataContract]
-    public class SearchRequest
+    public class StudentAge
+    {
+        [DataMember(Order = 1)] public int Age { get; set; }
+        [DataMember(Order = 2)] public int NumberOfStudent { get; set; }
+    }
+
+    [DataContract]
+    public class StudentCount
+    {
+        [DataMember(Order = 1)] public int Total { get; set; }
+    }
+
+    [DataContract]
+    public class StudentAgeChart
+    {
+        [DataMember(Order = 1)] public List<StudentAge> ChartData { get; set; } = null!;
+    }
+
+    [DataContract]
+    public class PaginationRequest
     {
         [DataMember(Order = 1)] public int? Id { get; set; }
         [DataMember(Order = 2)] public string? Name { get; set; }
-        [DataMember(Order = 3)] public DateTime? StartDate { get; set; }
-        [DataMember(Order = 4)] public DateTime? EndDate { get; set; }
-        [DataMember(Order = 5)] public string? Address { get; set; }
-        [DataMember(Order = 6)] public int? ClassId { get; set; }
+        [DataMember(Order = 3)] public string? Address { get; set; }
+        [DataMember(Order = 4)] public int? ClassId { get; set; }
+        [DataMember(Order = 5)] public DateTime? StartDate { get; set; }
+        [DataMember(Order = 6)] public DateTime? EndDate { get; set; }
+        [DataMember(Order = 7)] public int PageNumber { get; set; }
+        [DataMember(Order = 8)] public int PageSize { get; set; }
     }
-
 
     [DataContract]
     public class StudentProfileReply

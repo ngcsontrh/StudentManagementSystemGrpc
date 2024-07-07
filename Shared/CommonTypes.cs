@@ -18,12 +18,4 @@ namespace Shared
 
         [DataMember(Order = 2)] public string? Message { get; set; }
     }
-
-    [DataContract]
-    public class PaginationRequest
-    {
-        [DataMember(Order = 1)] public int PageNumber { get; set; }
-
-        [DataMember(Order = 2)] public int PageSize { get; set; }
-    }
 }

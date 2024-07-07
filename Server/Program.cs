@@ -1,6 +1,7 @@
 using Client.Blazor.Repositories;
 using NHibernate;
 using ProtoBuf.Grpc.Server;
+using Server.Mappers;
 using Server.Repositories;
 using Server.Repositories.Interfaces;
 using Server.Services;
@@ -19,6 +20,10 @@ namespace Server
             // Add services to the container.
             builder.Services.AddSingleton<NHibernateHelper>(provider => new NHibernateHelper(connectionString));
             builder.Services.AddScoped(provider => provider.GetService<NHibernateHelper>()!.OpenSession());
+
+            // Add automapper profiles
+            builder.Services.AddAutoMapper(typeof(StudentMapper));
+            builder.Services.AddAutoMapper(typeof(ClassMapper));
 
             // Add repositories
             builder.Services.AddScoped<IStudentRepository, StudentRepository>();

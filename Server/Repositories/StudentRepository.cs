@@ -1,8 +1,8 @@
 ﻿using NHibernate.Linq;
 using Server;
+using Server.DTOs;
 using Server.Entities;
 using Server.Repositories.Interfaces;
-using Shared.DTOs;
 using ISession = NHibernate.ISession;
 
 namespace Client.Blazor.Repositories
@@ -60,27 +60,6 @@ namespace Client.Blazor.Repositories
             return student;
         }
 
-        public async Task<List<Student>?> SearchAsync(SearchStudentDTO studentSearch)
-        {
-            var query = _session.Query<Student>().AsQueryable();
-            query = Filter(query, studentSearch);
-            var list = await query.ToListAsync();
-            return list;
-        }
-
-        public async Task<List<Student>?> GetWithPaginationAsync(int pageNumber = 1, int pageSize = 10)
-        {
-            int pageSkip = (pageNumber - 1) * pageSize;
-            var students = await _session.Query<Student>()
-                            .Fetch(s => s.StudentClass)
-                            .ThenFetch(c => c.ClassTeacher)
-                            .Skip(pageSkip)
-                            .Take(pageSize)
-                            .ToListAsync();
-
-            return students;
-        }
-
         public async Task UpdateAsync(Student student)
         {
             using (var transaction = _session.BeginTransaction())
@@ -90,15 +69,38 @@ namespace Client.Blazor.Repositories
             }
         }
 
-        public async Task<List<Student>?> SearchWithPaginationAsync(SearchStudentDTO studentSearch, int pageNumber = 1, int pageSize = 10)
+        public async Task<PageViewDTO<Student>> GetPaginationAsync(Server.DTOs.SearchStudentDTO searchStudent, int pageNumber = 1, int pageSize = 10)
         {
             int pageSkip = (pageNumber - 1) * pageSize;
             var query = _session.Query<Student>()
                             .Fetch(s => s.StudentClass)
                             .ThenFetch(c => c.ClassTeacher).AsQueryable();
-            query = Filter(query, studentSearch);
-            var students = await query!.Skip(pageSkip).Take(pageSize).ToListAsync();
-            return students;
+            query = Filter(query, searchStudent);
+            var result = new PageViewDTO<Student>
+            {
+                Total = await query.CountAsync(),
+                Students = await query!.Skip(pageSkip).Take(pageSize).ToListAsync()
+            };
+            return result;
+        }
+
+        public async Task<List<StudentAgeChartDTO>> GetStudentAgesChartAsync(int classId = -1)
+        {
+            var query = _session.Query<Student>();
+            if (classId != -1)
+            {
+                query = query.Where(s => s.StudentClass.Id == classId);
+            }
+            List<StudentAgeChartDTO> result = await query
+                .GroupBy(s => DateTime.Now.Year - s.Birthday.Year)
+                .Select(s => new StudentAgeChartDTO
+                {
+                    Age = s.Key,
+                    NumberOfStudent = s.Count()
+                })
+                .OrderBy(r => r.Age)
+                .ToListAsync();
+            return result;
         }
 
         private IQueryable<Student>? Filter(IQueryable<Student> query, SearchStudentDTO studentSearchField)
@@ -128,14 +130,6 @@ namespace Client.Blazor.Repositories
                 query = query.Where(student => student.StudentClass.Id == studentSearchField.ClassId.Value);
             }
             return query;
-        }
-
-        public async Task<int> CountWithSearch(SearchStudentDTO searchStudentDTO)
-        {
-            var query = _session.Query<Student>();
-            query = Filter(query, searchStudentDTO);
-            int count = await query.CountAsync();
-            return count;
         }
     }
 }

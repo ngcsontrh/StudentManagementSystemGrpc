@@ -1,9 +1,7 @@
-﻿using System.Runtime.Serialization;
-
-namespace Client.Blazor.Models
+﻿namespace Client.Blazor.DTOs
 {
-    public class ClassInformationModel
-    {        
+    public class ClassInfoDTO
+    {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
         public string Subject { get; set; } = null!;

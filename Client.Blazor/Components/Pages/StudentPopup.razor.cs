@@ -1,4 +1,6 @@
 ﻿using AntDesign;
+using AutoMapper;
+using Client.Blazor.DTOs;
 using Client.Blazor.Models;
 using Microsoft.AspNetCore.Components;
 using Shared;
@@ -8,7 +10,7 @@ namespace Client.Blazor.Components.Pages
     public partial class StudentPopup : ComponentBase
     {
         [Parameter]
-        public StudentProfileModel StudentProfile { get; set; } = null!;
+        public StudentProfileDTO Student { get; set; } = null!;
 
         [Parameter]
         public bool IsVisible { get; set; }
@@ -29,9 +31,12 @@ namespace Client.Blazor.Components.Pages
         public IClassService ClassService { get; set; } = null!;
 
         [Inject]
+        public IMapper Mapper { get; set; } = null!;
+
+        [Inject]
         public NotificationService Notification { get; set; } = null!;
 
-        List<ClassInformationModel>? classes;
+        List<ClassInfoDTO>? classes;
 
         private async Task ClosePopup()
         {
@@ -44,10 +49,8 @@ namespace Client.Blazor.Components.Pages
             switch (Status)
             {
                 case "Create":
-                    await CreateStudentAsync();
-                    break;
                 case "Update":
-                    await UpdateStudentAsync();
+                    await CreateOrUpdateAsync(); 
                     break;
                 case "Delete":
                     await DeleteStudentAsync();
@@ -63,117 +66,53 @@ namespace Client.Blazor.Components.Pages
             var reply = await ClassService.GetAllClassesInfo(new Shared.Empty());
             if (reply.Classes == null)
             {
-                _ = Notification.Open(new NotificationConfig()
-                {
-                    Message = "Error",
-                    Description = reply.Message,
-                    NotificationType = NotificationType.Error
-                });
+                NotificationMessage(reply.Message, false);
             }
             else
             {
-                classes = reply.Classes.Select(c => new ClassInformationModel
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Subject = c.Subject,
-                }).ToList();
+                classes = Mapper.Map<List<ClassInfoDTO>>(reply.Classes);
             }
+        }
+
+        // delete student by id
+        private async Task DeleteStudentAsync()
+        {
+            var reply = await StudentService.DeleteAsync(new IdRequest { Id = Student.Id });
+            NotificationMessage(reply.Message, reply.Success);
+            await ReloadStudents.InvokeAsync();
+            await ClosePopup();
+        }
+
+        private async Task CreateOrUpdateAsync()
+        {
+            var student = Mapper.Map<StudentProfile>(Student);
+            OperationReply reply = new OperationReply();
+            if(Status == "Create")
+            {
+                reply = await StudentService.CreateAsync(student);
+            }
+            else if(Status == "Update")
+            {
+                reply = await StudentService.UpdateAsync(student);
+            }
+            NotificationMessage(reply.Message, reply.Success);
+            await ReloadStudents.InvokeAsync();
+            await ClosePopup();
+        }
+
+        void NotificationMessage(string? message, bool isSuccess)
+        {
+           _ = Notification.Open(new NotificationConfig()
+            {
+                Message = "Success",
+                Description = message ?? $"{Status}d",
+                NotificationType = isSuccess ? NotificationType.Success : NotificationType.Error
+            });
         }
 
         protected override async Task OnInitializedAsync()
         {
             await LoadClassesAsync();
         }
-
-        private async Task CreateStudentAsync()
-        {
-            var reply = await StudentService.CreateAsync(new StudentProfile
-            {
-                FullName = StudentProfile.FullName,
-                Birthday = StudentProfile.Birthday,
-                Address = StudentProfile.Address,
-                ClassId = StudentProfile.ClassId!
-            });
-            if (reply.Success)
-            {
-                _ = Notification.Open(new NotificationConfig()
-                {
-                    Message = "Success",
-                    Description = "Added new student",
-                    NotificationType = NotificationType.Success
-                });
-            }
-            else
-            {
-                _ = Notification.Open(new NotificationConfig()
-                {
-                    Message = "Error",
-                    Description = reply.Message,
-                    NotificationType = NotificationType.Error
-                });
-            }
-            await ReloadStudents.InvokeAsync();
-            await ClosePopup();
-        }
-
-        // delete student by id
-        private async Task DeleteStudentAsync()
-        {
-            var reply = await StudentService.DeleteAsync(new IdRequest { Id = StudentProfile.Id });
-            if (reply.Success)
-            {
-                _ = Notification.Open(new NotificationConfig()
-                {
-                    Message = "Success",
-                    Description = "Student has been deleted",
-                    NotificationType = NotificationType.Success
-                });
-            }
-            else
-            {
-                _ = Notification.Open(new NotificationConfig()
-                {
-                    Message = "Success",
-                    Description = reply.Message,
-                    NotificationType = NotificationType.Error
-                });
-            }
-            await ReloadStudents.InvokeAsync();
-            await ClosePopup();
-        }
-
-        private async Task UpdateStudentAsync()
-        {
-            var reply = await StudentService.UpdateAsync(new StudentProfile
-            {
-                Id = StudentProfile.Id,
-                FullName = StudentProfile.FullName,
-                Birthday = StudentProfile.Birthday,
-                Address = StudentProfile.Address,
-                ClassId = StudentProfile.ClassId!
-            });
-            if (reply.Success)
-            {
-                _ = Notification.Open(new NotificationConfig()
-                {
-                    Message = "Success",
-                    Description = "Updated",
-                    NotificationType = NotificationType.Success
-                });
-            }
-            else
-            {
-                _ = Notification.Open(new NotificationConfig()
-                {
-                    Message = "Error",
-                    Description = reply.Message,
-                    NotificationType = NotificationType.Error
-                });
-            }
-            await ReloadStudents.InvokeAsync();
-            await ClosePopup();
-        }
-
     }
 }

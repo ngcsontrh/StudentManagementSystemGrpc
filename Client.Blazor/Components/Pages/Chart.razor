@@ -1,4 +1,4 @@
-﻿@page "/chart"  
+﻿@page "/chart"
 @rendermode InteractiveServer
 <Tabs>
     <TabPane Key="1">
@@ -7,12 +7,12 @@
             <Dropdown Class="px-3" Trigger="@(new Trigger[] { Trigger.Click })">
                 <Overlay>
                     <Menu>
-                        @if(classes != null)
+                        @if (classes != null)
                         {
                             <MenuItem OnClick="() => LoadStudentAgeClass()">
                                 All
                             </MenuItem>
-                            @foreach(var clazz in classes)
+                            @foreach (var clazz in classes)
                             {
                                 <MenuItem OnClick="() => LoadStudentAgeClass(clazz.Id)">
                                     @clazz.Name

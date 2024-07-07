@@ -3,22 +3,22 @@
 @using Shared
 @rendermode InteractiveServer
 
-<Drawer Visible="@IsVisible" Placement="right" Title="@("Update Student")" OnClose="ClosePopup" Width="500">
-    <Form Model="@StudentProfile"
+<Drawer Visible="@IsVisible" Placement="right" Title="@($"{Status} Student")" OnClose="ClosePopup" Width="500">
+    <Form Model="@Student"
           OnFinish="HandleOnSubmit"
           ValidateMode=@FormValidateMode.Complex
           RequiredMark=FormRequiredMark.Required>
         @if(Status == "Details" || Status == "Update" || Status == "Delete")
         {
             <FormItem Label="ID">
-                <Input @bind-Value="StudentProfile.Id" Disabled />
+                <Input @bind-Value="Student.Id" Disabled />
             </FormItem>
         }
         <FormItem Label="Full Name">
-            <Input @bind-Value="StudentProfile.FullName" Disabled=@(Status == "Details" || Status == "Delete")/>
+            <Input @bind-Value="Student.FullName" Disabled=@(Status == "Details" || Status == "Delete") />
         </FormItem>
         <FormItem Label="Birthday">
-            <DatePicker @bind-Value="StudentProfile.Birthday" Format="dd/MM/yyyy" Disabled=@(Status == "Details" || Status == "Delete") DefaultValue="DateTime.Now" />
+            <DatePicker @bind-Value="Student.Birthday" Format="dd/MM/yyyy" Disabled=@(Status == "Details" || Status == "Delete") DefaultValue="DateTime.Now" />
         </FormItem>
         <Flex Gap="small">
             <FormItem Label="Class">
@@ -40,18 +40,18 @@
             </FormItem>
         </Flex>
         <FormItem Label="Address">
-            <TextArea @bind-Value="StudentProfile.Address" MinRows="3" MaxRows="6" Disabled=@(Status == "Details" || Status == "Delete") />
+            <TextArea @bind-Value="Student.Address" MinRows="3" MaxRows="6" Disabled=@(Status == "Details" || Status == "Delete") />
         </FormItem>
         @if (Status == "Details" || Status == "Delete")
         {
             <FormItem Label="Teacher ID">
-                <Input @bind-Value="StudentProfile.TeacherId" Disabled />
+                <Input @bind-Value="Student.TeacherId" Disabled />
             </FormItem>
             <FormItem Label="Teacher Name">
-                <Input @bind-Value="StudentProfile.TeacherFullName" Disabled/>
+                <Input @bind-Value="Student.TeacherFullName" Disabled />
             </FormItem>
             <FormItem Label="Teacher Birthday">
-                <Input @bind-Value="StudentProfile.TeacherBirthday" Disabled />
+                <DatePicker @bind-Value="Student.TeacherBirthday" Format="dd/MM/yyyy" Disabled=@(Status == "Details" || Status == "Delete") />
             </FormItem>
         }       
         <FormItem>

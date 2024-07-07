@@ -1,6 +1,6 @@
-﻿using Client.Blazor.Models;
+﻿using Client.Blazor.DTOs;
+using Client.Blazor.Models;
 using Microsoft.AspNetCore.Components;
-using Shared.DTOs;
 using Shared;
 
 namespace Client.Blazor.Components.Pages
@@ -14,21 +14,16 @@ namespace Client.Blazor.Components.Pages
         IClassService ClassService { get; set; } = null!;
 
         [Parameter]
-        public EventCallback<StudentPaginatedModel> OnStudentFound { get; set; }
-
-        [Parameter]
-        public EventCallback OnStudentNotFound { get; set; }
+        public EventCallback<SearchStudentDTO> OnSearch {  get; set; }
 
         SearchStudentDTO studentFields = new SearchStudentDTO();
 
-        List<ClassInformationModel>? classes;
-        List<StudentProfileModel>? students;
-        int total;
+        List<ClassInfoDTO>? classes;
 
         private async Task LoadClassesAsync()
         {
             var reply = await ClassService.GetAllClassesInfo(new Shared.Empty());
-            classes = reply.Classes!.Select(c => new ClassInformationModel
+            classes = reply.Classes!.Select(c => new ClassInfoDTO
             {
                 Id = c.Id,
                 Name = c.Name,
@@ -38,38 +33,7 @@ namespace Client.Blazor.Components.Pages
 
         private async Task HandleOnSearchAsync()
         {
-
-            var reply = await StudentService.SearchStudentAsync(new SearchRequest
-            {
-                Id = studentFields.Id,
-                Name = studentFields.Name,
-                Address = studentFields.Address,
-                ClassId = studentFields.ClassId,
-                EndDate = studentFields.EndDate,
-                StartDate = studentFields.StartDate
-            });
-            if (reply.Students == null)
-            {
-                await OnStudentNotFound.InvokeAsync();
-            }
-            else
-            {
-                students = reply.Students.Select(s => new StudentProfileModel
-                {
-                    Id = s.Id,
-                    FullName = s.FullName,
-                    Birthday = s.Birthday,
-                    Address = s.Address,
-                    ClassId = s.ClassId,
-                    ClassName = s.ClassName,
-                }).ToList();
-                total = reply.Count;
-                await OnStudentFound.InvokeAsync(new StudentPaginatedModel
-                {
-                    Total = total,
-                    Students  = students
-                });
-            }
+            await OnSearch.InvokeAsync(studentFields);
         }
 
         protected override async Task OnInitializedAsync()

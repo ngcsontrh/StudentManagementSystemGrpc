@@ -1,12 +1,8 @@
 ﻿using AntDesign;
-using Client.Blazor.Models;
-using Grpc.Net.Client;
+using AutoMapper;
+using Client.Blazor.DTOs;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using ProtoBuf.Grpc.Client;
 using Shared;
-using Shared.DTOs;
 
 namespace Client.Blazor.Components.Pages
 {
@@ -16,93 +12,46 @@ namespace Client.Blazor.Components.Pages
         public IStudentService StudentService { get; set; } = null!;
 
         [Inject]
-        public IClassService ClassService { get; set; } = null!;
+        public NotificationService Notification { get; set; } = null!;
 
         [Inject]
-        public NavigationManager Navigation {  get; set; } = null!;
-
-        [Inject]
-        public NotificationService Notification {  get; set; } = null!;
+        public IMapper Mapper { get; set; } = null!;
 
         // models
-        private StudentProfileModel student = null!;
-        private List<StudentProfileModel>? students;
-        private List<StudentProfileModel>? studentsSearched;
+        private StudentProfileDTO? student;
+        SearchStudentDTO searchFields = new SearchStudentDTO();
+        private List<StudentProfileDTO>? students;
 
         private int pageNumber = 1;
         private int pageSize = 10;
-        int total = 0; // total students in db
+        int total; // total students in db
 
-        bool isOpenUpdatePopup = false; // true if open update
-        bool isOpenDetailsPopup = false; // true if open details
-        bool isDeletePopup = false;
-        bool isOpenCreatePopup = false;
-        bool isStudentSearchedFound = false;
+        bool isVisible = false;
+        string? popupStatus;
 
-        private void OpenPopup(string status, StudentProfileModel? student = null)
+        private void OpenPopup(string status, StudentProfileDTO? student = null)
         {
-            this.student = student ?? new StudentProfileModel();
-            switch (status)
-            {
-                case "Update":
-                    isOpenUpdatePopup = true;
-                    break;
-                case "Create":
-                    isOpenCreatePopup = true;
-                    break;
-                case "Details":
-                    isOpenDetailsPopup = true;
-                    break;
-                case "Delete":
-                    isDeletePopup = true;
-                    break;
-            }
+            popupStatus = status;
+            this.student = student ?? new StudentProfileDTO();
+            isVisible = true;
         }
 
-        private async Task ClosePopup(string status)
+        private async Task ClosePopup()
         {
-            student = new StudentProfileModel();
-            switch (status)
-            {
-                case "Update":
-                    isOpenUpdatePopup = false;
-                    break;
-                case "Create":
-                    isOpenCreatePopup = false;
-                    break;
-                case "Details":
-                    isOpenDetailsPopup = false;
-                    break;
-                case "Delete":
-                    isDeletePopup = false;
-                    break;
-            }
+            popupStatus = null;
+            isVisible = false;
+            this.student = null;
         }
 
-        // load students with pagination
         private async Task LoadStudentsAsync()
         {
-            var reply = await StudentService.GetWithPaginationAsync(new PaginationRequest
+            var request = Mapper.Map<PaginationRequest>(searchFields);
+            request.PageSize = pageSize;
+            request.PageNumber = pageNumber;
+            var reply = await StudentService.GetPaginationAsync(request);
+            if(reply.Students != null)
             {
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-            });
-
-            if (reply.Students != null)
-            {
-                students = reply.Students.Select(s => new StudentProfileModel
-                {
-                    Id = s.Id,
-                    FullName = s.FullName,
-                    Birthday = s.Birthday,
-                    Address = s.Address,
-                    ClassId = s.ClassId,
-                    ClassName = s.ClassName,
-                    ClassSubject = s.ClassSubject,
-                    TeacherId = s.TeacherId,
-                    TeacherBirthday = s.TeacherBirthday,
-                    TeacherFullName = s.TeacherFullName
-                }).ToList();
+                students = Mapper.Map<List<StudentProfileDTO>>(reply.Students);
                 total = reply.Count;
             }
             else
@@ -120,6 +69,7 @@ namespace Client.Blazor.Components.Pages
                         Description = reply.Message,
                         NotificationType = NotificationType.Error
                     });
+                    searchFields = new SearchStudentDTO();
                 }
             }
         }
@@ -127,27 +77,14 @@ namespace Client.Blazor.Components.Pages
         private async Task HandlePageIndexChange(PaginationEventArgs args)
         {
             pageNumber = args.Page;
-            if(isStudentSearchedFound)
-            {
-                students = studentsSearched.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
-            }
-            else
-            {
-                await LoadStudentsAsync();
-            }
+            await LoadStudentsAsync();
         }
 
         private async Task HandlePageSizeChange(PaginationEventArgs args)
         {
+            pageNumber = 1;
             pageSize = args.PageSize;
-            if (!isStudentSearchedFound)
-            {
-                await LoadStudentsAsync();
-            }
-            else
-            {
-                students = studentsSearched.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
-            }
+            await LoadStudentsAsync();
         }
 
         private void OnSort(MenuItem menu)
@@ -175,26 +112,11 @@ namespace Client.Blazor.Components.Pages
             }
         }
 
-        private async Task OnSearchFound(StudentPaginatedModel paginatedModel)
+        private async Task OnSearch(SearchStudentDTO searchStudent)
         {
-            pageNumber = 1;
-            pageSize = 10;
-            isStudentSearchedFound = true;
-            studentsSearched = paginatedModel.Students?.OrderBy(s => s.Id).ToList();
-            total = studentsSearched.Count;
-            students = studentsSearched.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
-        }
-
-        private async Task OnSearchedNotFound()
-        {
+            pageNumber= 1;
+            searchFields = searchStudent;
             await LoadStudentsAsync();
-            isStudentSearchedFound = false;
-            _ = Notification.Open(new NotificationConfig()
-            {
-                Message = "Error",
-                Description = "Not Found",
-                NotificationType = NotificationType.Error,
-            });
         }
 
         protected override async Task OnInitializedAsync()

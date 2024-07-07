@@ -14,6 +14,22 @@ namespace Shared
     {
         [OperationContract]
         Task<MultipleClassInfosReply> GetAllClassesInfo(Empty request, CallContext context = default);
+
+        [OperationContract]
+        Task<ClassChart> GetClassChartAsync(Empty request, CallContext callContext = default);
+    }
+
+    [DataContract]
+    public class ClassStudentCount
+    {
+        [DataMember(Order = 1)] public string ClassName { get; set; } = null!;
+        [DataMember(Order = 2)] public int NumberOfStudent { get; set; }
+    }
+
+    [DataContract]
+    public class ClassChart
+    {
+        [DataMember(Order = 1)] public List<ClassStudentCount> ChartData { get; set; } = null!;
     }
 
     [DataContract]
