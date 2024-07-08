@@ -1,6 +1,6 @@
-﻿namespace Client.Blazor.Models
+﻿namespace Server.DTOs
 {
-    public class StudentAgeChartModel
+    public class StudentAgeDTO
     {
         public int Age { get; set; }
         public int NumberOfStudent { get; set; }

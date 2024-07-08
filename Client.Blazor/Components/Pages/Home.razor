@@ -1,6 +1,5 @@
 ﻿@page "/"
 @page "/students"
-@using Client.Blazor.Models
 @using Grpc.Net.Client
 @using ProtoBuf.Grpc.Client
 @using Shared
@@ -9,31 +8,31 @@
 <PageTitle>Home</PageTitle>
 
 <div>
-    <SearchField OnStudentFound="OnSearchFound" OnStudentNotFound="OnSearchedNotFound" />
+    <SearchField OnSearch="OnSearch" />
 </div>
 
 <div class="d-flex justify-content-between align-items-center">
-    <Button Type="primary" OnClick="OpenCreatePopup">Add new student</Button>
+    <Button Type="primary" OnClick="@(e => OpenPopup("Create"))">Add new student</Button>
     <div>
-        <Dropdown>
+        <Dropdown Trigger="@(new Trigger[] { Trigger.Click })">
             <Overlay>
-                <Menu>
-                    <MenuItem OnClick="HandleSortById">
+                <Menu OnMenuItemClicked="OnSort">
+                    <MenuItem Key="sbId">
                         <Text>Sort by Id</Text>
                     </MenuItem>
-                    <MenuItem OnClick="HandleSortByName">                   
+                    <MenuItem Key="sbName">
                         <Text>Sort by Name</Text>
                     </MenuItem>
-                    <MenuItem OnClick="HandleSortByBirthday">
+                    <MenuItem Key="sbBirthday">
                         <Text>Sort by Birthday</Text>
                     </MenuItem>
-                    <MenuItem OnClick="HandleSortByAddress">
+                    <MenuItem Key="sbAddress">
                         <Text>Sort by Address</Text>
                     </MenuItem>
-                    <MenuItem OnClick="HandleSortByClassId">
+                    <MenuItem Key="sbClassId">
                         <Text>Sort by Class Id</Text>
                     </MenuItem>
-                    <MenuItem OnClick="HandleSortByClassName">
+                    <MenuItem Key="sbClassName">
                         <Text>Sort by Class Name</Text>
                     </MenuItem>
                 </Menu>
@@ -45,51 +44,39 @@
             </ChildContent>
         </Dropdown>
     
-        <Button OnClick="LoadStudentsAsync">Reload Page</Button>
+        <Button OnClick="@(() => LoadStudentsAsync())">Reload Page</Button>
     </div>
 
 </div>
-
-<Table 
-    DataSource="@students" 
-    RowKey="s => s.Id"
-    PageIndex="pageNumber"
-    Loading="(students == null)"
-    Total="total"
-    PageSize="pageSize"
-    HidePagination="(total <= pageSize)"
-    OnPageIndexChange="HandlePageIndexChange"
-    OnPageSizeChange="HandlePageSizeChange">
-        <PropertyColumn Property="s => s.Id" Title="Id" Sortable />
-        <PropertyColumn Property="s => s.FullName" Title="Full Name" Sortable />
-        <PropertyColumn Property="s => s.Birthday" Title="Birthday" Format="dd/MM/yyyy" Sortable />
-        <PropertyColumn Property="s => s.Address" Title="Address" Sortable/>
-        <PropertyColumn Property="s => s.ClassId" Title="Class Id" Sortable/>
-        <PropertyColumn Property="s => s.ClassName" Title="Class Name" Sortable/>
+    <Table DataSource="@students"
+           RowKey="s => s.Id"
+           PageIndex="pageNumber"
+           Loading="(students == null)"
+           Total="total"
+           PageSize="pageSize"
+           HidePagination="(total <= pageSize)"
+           OnPageIndexChange="HandlePageIndexChange"
+           OnPageSizeChange="HandlePageSizeChange">
+        <ColumnDefinition Title="Index">
+            @{
+                int index = students!.IndexOf(context) + 1 + ((pageNumber - 1) * pageSize);
+            }
+            @index
+        </ColumnDefinition>
+        <PropertyColumn Property="s => s.Id" Title="Id" />
+        <PropertyColumn Property="s => s.FullName" Title="Full Name" />
+        <PropertyColumn Property="s => s.Birthday" Title="Birthday" Format="dd/MM/yyyy" />
+        <PropertyColumn Property="s => s.Address" Title="Address" />
+        <PropertyColumn Property="s => s.ClassId" Title="Class Id" />
+        <PropertyColumn Property="s => s.ClassName" Title="Class Name" />
         <ActionColumn Title="Action" Class="d-flex justify-content-center align-items-center gap-2">
-            <Popconfirm Title="Sure to delete?"
-                        OnConfirm="()=> HandleOnDeleteAsync(context.Id)"
-                        OkText="Yes"
-                        CancelText="No">
-                <Button Danger>
-                    Delete
-                </Button>
-            </Popconfirm>
-
-            <Button OnClick="() => OpenUpdatePopup(context)">Update</Button>
-            <Button OnClick="() => OpenDetailsPopup(context.Id)">Details</Button>
+            <Button Danger OnClick="@(() => OpenPopup("Delete", context))">Delete</Button>
+            <Button OnClick="@(() => OpenPopup("Update", context))">Update</Button>
+            <Button OnClick="@(() => OpenPopup("Details", context))">Details</Button>
         </ActionColumn>
-   
-</Table>
-@if(isOpenUpdatePopup)
+    </Table>
+
+@if(!string.IsNullOrEmpty(popupStatus))
 {
-    <UpdatePopup IsVisible ="isOpenUpdatePopup" StudentProfile="student" ReloadStudents="LoadStudentsAsync" OnClose="CloseUpdatePopup"/>
-}
-@if(isOpenDetailsPopup)
-{
-    <DetailsPopup IsVisible="isOpenDetailsPopup" Id="studentDetailsId" OnClose="CloseDetailsPopup"/>
-}
-@if(isOpenCreatePopup)
-{
-    <CreatePopup IsVisible="isOpenCreatePopup" ReloadStudents="LoadStudentsAsync" OnClose="CloseCreatePopup" />
+    <StudentPopup Student="student" ReloadStudents="@(() => LoadStudentsAsync())" OnClose="ClosePopup" Status=@popupStatus />
 }

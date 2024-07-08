@@ -7,6 +7,6 @@
         public virtual string Subject { get; set; } = null!;
 
         public virtual Teacher ClassTeacher { get; set; } = null!;
-        public virtual IList<Student> ClassStudents { get; set; } = null!;
+        public virtual IList<Student> ClassStudents { get; set; } = new List<Student>();
     }
 }

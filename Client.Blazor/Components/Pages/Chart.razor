@@ -1,0 +1,37 @@
+﻿@page "/chart"
+@rendermode InteractiveServer
+<Tabs>
+    <TabPane Key="1">
+        <TabTemplate>The statistics of students' ages</TabTemplate>
+        <ChildContent>
+            <div class="d-flex justify-content-end gap-3 me-5">
+                @if (classes != null)
+                {
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" checked id="allClass" name="classRadio" value="@(-1)" onclick="@(() => LoadStudentAgeClass())">
+                        <label class="form-check-label" for="allClass">All</label>
+                    </div>
+                    @foreach (var clazz in classes)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="@($"class{clazz.Id}")" name="classRadio" value="@clazz.Id" onclick="@(() => LoadStudentAgeClass(clazz.Id))">
+                            <label class="form-check-label" for="@($"class{clazz.Id}")">@clazz.Name</label>
+                        </div>
+                    }
+                }
+            </div>
+            <div class="mt-3 ms-3">
+                <p class="fs-6">Number of students</p>
+                <AntDesign.Charts.Column @ref="chart1" Data="data1" Config="config1" />
+                <p class="text-center fs-6">Age</p>
+            </div>
+        </ChildContent>
+    </TabPane>
+
+    <TabPane Key="2">
+        <TabTemplate>Statistics of the number of students in the class</TabTemplate>
+        <ChildContent>
+            <Pie Data="data2" Config="config2" />
+        </ChildContent>
+    </TabPane>
+</Tabs>

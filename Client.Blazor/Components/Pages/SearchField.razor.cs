@@ -1,6 +1,6 @@
-﻿using Client.Blazor.Models;
+﻿using AutoMapper;
+using Client.Blazor.DTOs;
 using Microsoft.AspNetCore.Components;
-using Shared.Models;
 using Shared;
 
 namespace Client.Blazor.Components.Pages
@@ -13,57 +13,25 @@ namespace Client.Blazor.Components.Pages
         [Inject]
         IClassService ClassService { get; set; } = null!;
 
-        [Parameter]
-        public EventCallback<List<StudentProfileModel>> OnStudentFound { get; set; }
+        [Inject]
+        IMapper Mapper { get; set; } = null!;
 
         [Parameter]
-        public EventCallback OnStudentNotFound { get; set; }
+        public EventCallback<SearchStudentDTO> OnSearch {  get; set; }
 
-        SearchStudentModel studentFields = new SearchStudentModel();
+        SearchStudentDTO studentFields = new SearchStudentDTO();
 
-        List<ClassInformationModel>? classes;
-        List<StudentProfileModel>? students;
+        List<ClassInfoDTO>? classes;
 
         private async Task LoadClassesAsync()
         {
             var reply = await ClassService.GetAllClassesInfo(new Shared.Empty());
-            classes = reply.Classes!.Select(c => new ClassInformationModel
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Subject = c.Subject,
-            }).ToList();
+            classes = Mapper.Map<List<ClassInfoDTO>>(reply.Classes);
         }
 
         private async Task HandleOnSearchAsync()
         {
-            students = null;
-            var reply = await StudentService.SearchStudentAsync(new SearchRequest
-            {
-                Id = studentFields.Id,
-                Name = studentFields.Name,
-                Address = studentFields.Address,
-                ClassId = studentFields.ClassId,
-                StartDate = studentFields.StartDate,
-                EndDate = studentFields.EndDate
-            });
-            if (reply.Students == null)
-            {
-                await OnStudentNotFound.InvokeAsync();
-            }
-            else
-            {
-                students = reply.Students.Select(s => new StudentProfileModel
-                {
-                    Id = s.Id,
-                    FullName = s.FullName,
-                    Birthday = s.Birthday,
-                    Address = s.Address,
-                    ClassId = s.ClassId,
-                    ClassName = s.ClassName,
-                }).ToList();
-                await OnStudentFound.InvokeAsync(students);
-            }
+            await OnSearch.InvokeAsync(studentFields);
         }
 
         protected override async Task OnInitializedAsync()
