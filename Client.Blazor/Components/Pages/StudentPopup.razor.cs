@@ -60,15 +60,7 @@ namespace Client.Blazor.Components.Pages
                 classes = Mapper.Map<List<ClassInfoDTO>>(reply.Classes);
             }
         }
-
-        // delete student by id
-        private async Task DeleteStudentAsync()
-        {
-            var reply = await StudentService.DeleteAsync(new IdRequest { Id = Student.Id });
-            NotificationMessage(reply.Message, reply.Success);
-            await ReloadStudents.InvokeAsync();
-            await ClosePopup();
-        }
+        
 
         private async Task CreateOrUpdateAsync()
         {
