@@ -10,5 +10,8 @@ Chứa các dịch vụ gRPC được triển khai trong .NET, cùng với các 
 ### client.blazor
 Là ứng dụng web Blazor tương tác với người dùng và giao tiếp với server qua gRPC.
 
+### client.consoleapp
+Là ứng dụng console tương tác với người dùng và giao tiếp với server qua gRPC.
+
 ### shared
 Chứa các contract gRPC.
