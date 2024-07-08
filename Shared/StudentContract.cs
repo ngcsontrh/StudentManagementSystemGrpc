@@ -41,12 +41,6 @@ namespace Shared
     }
 
     [DataContract]
-    public class StudentCount
-    {
-        [DataMember(Order = 1)] public int Total { get; set; }
-    }
-
-    [DataContract]
     public class StudentAgeChart
     {
         [DataMember(Order = 1)] public List<StudentAge> ChartData { get; set; } = null!;
