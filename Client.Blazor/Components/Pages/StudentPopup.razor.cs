@@ -12,13 +12,19 @@ namespace Client.Blazor.Components.Pages
         public StudentProfileDTO Student { get; set; } = null!;
 
         [Parameter]
-        public string Status { get; set; } = null!;
+        public bool IsCreate { get; set; }
+
+        [Parameter]
+        public bool Visible {  get; set; }
+
+        [Parameter]
+        public bool IsDetails {  get; set; }
 
         [Parameter]
         public EventCallback ReloadStudents { get; set; }
 
         [Parameter]
-        public EventCallback<string> OnClose { get; set; }
+        public EventCallback OnClose { get; set; }
 
         [Inject]
         public IStudentService StudentService { get; set; } = null!;
@@ -33,29 +39,13 @@ namespace Client.Blazor.Components.Pages
         public NotificationService Notification { get; set; } = null!;
 
         List<ClassInfoDTO> classes = new List<ClassInfoDTO>();
-        bool isDrawerVisible = false;
-        bool isModalVisible = false;
 
         private async Task ClosePopup()
         {
-            await OnClose.InvokeAsync(Status);
-        }
-
-        private async Task HandleOnSubmit()
-        {
-            switch (Status)
-            {
-                case "Create":
-                case "Update":
-                    await CreateOrUpdateAsync(); 
-                    break;
-                case "Delete":
-                    await DeleteStudentAsync();
-                    break;
-                case "Details":
-                    await Task.Run(() => { });
-                    break;
-            }
+            IsDetails = false;
+            IsCreate = false;
+            Visible = false;
+            await OnClose.InvokeAsync();
         }
 
         async Task LoadClassesAsync()
@@ -84,11 +74,11 @@ namespace Client.Blazor.Components.Pages
         {
             var student = Mapper.Map<StudentProfile>(Student);
             OperationReply reply = new OperationReply();
-            if(Status == "Create")
+            if(IsCreate)
             {
                 reply = await StudentService.CreateAsync(student);
             }
-            else if(Status == "Update")
+            else
             {
                 reply = await StudentService.UpdateAsync(student);
             }
@@ -102,7 +92,7 @@ namespace Client.Blazor.Components.Pages
            _ = Notification.Open(new NotificationConfig()
             {
                 Message = "Success",
-                Description = message ?? $"{Status}d",
+                Description = message != null ? message : IsCreate ? "Created" : "Updated",
                 NotificationType = isSuccess ? NotificationType.Success : NotificationType.Error
             });
         }
@@ -110,14 +100,6 @@ namespace Client.Blazor.Components.Pages
         protected override async Task OnInitializedAsync()
         {
             await LoadClassesAsync();
-            if(Status == "Delete")
-            {
-                isModalVisible = true;
-            }
-            else
-            {
-                isDrawerVisible = true;
-            }
         }
     }
 }

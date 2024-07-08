@@ -1,8 +1,11 @@
 ﻿using AntDesign;
 using AutoMapper;
 using Client.Blazor.DTOs;
+using Grpc.Core;
 using Microsoft.AspNetCore.Components;
+using OneOf.Types;
 using Shared;
+using System.ServiceModel.Channels;
 
 namespace Client.Blazor.Components.Pages
 {
@@ -26,20 +29,29 @@ namespace Client.Blazor.Components.Pages
         private int pageSize = 10;
         int total; // total students in db
 
-        string? popupStatus;
+        bool isCreate = false;
+        bool isDetails = false;
+        bool visible = false;
 
-        private void OpenPopup(string status, StudentProfileDTO? student = null)
+        private void OpenPopup(StudentProfileDTO? student = null, bool isCreate = false, bool isDetails = false)
         {
-            popupStatus = status;
-            this.student = student ?? new StudentProfileDTO();
+            this.isCreate = isCreate;
+            this.visible = true;
+            this.isDetails = isDetails;
+            if (!isCreate)
+            {
+                this.student = student;
+            }
         }
 
         private async Task ClosePopup()
         {
             await Task.Run(() =>
             {
-                popupStatus = null;
-                this.student = null;
+                student = new StudentProfileDTO();
+                isCreate = false;
+                visible = false;
+                isDetails = false;
             });
         }
 
@@ -72,6 +84,18 @@ namespace Client.Blazor.Components.Pages
                     searchFields = new SearchStudentDTO();
                 }
             }
+        }
+
+        private async Task DeleteStudentAsync(int id)
+        {
+            var reply = await StudentService.DeleteAsync(new IdRequest { Id = id });
+            _ = Notification.Open(new NotificationConfig()
+            {
+                Message = "Success",
+                Description = reply.Message ?? "Deleted",
+                NotificationType = reply.Success ? NotificationType.Success : NotificationType.Error
+            });
+            await LoadStudentsAsync();
         }
 
         private async Task HandlePageIndexChange(PaginationEventArgs args)

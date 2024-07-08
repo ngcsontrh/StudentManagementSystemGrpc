@@ -12,7 +12,7 @@
 </div>
 
 <div class="d-flex justify-content-between align-items-center">
-    <Button Type="primary" OnClick="@(e => OpenPopup("Create"))">Add new student</Button>
+    <Button Type="primary" OnClick="@(e => OpenPopup(isCreate:true))">Add new student</Button>
     <div>
         <Dropdown Trigger="@(new Trigger[] { Trigger.Click })">
             <Overlay>
@@ -51,7 +51,7 @@
     <Table DataSource="@students"
            RowKey="s => s.Id"
            PageIndex="pageNumber"
-           Loading="(students == null)"
+           Loading="@(students == null)"
            Total="total"
            PageSize="pageSize"
            HidePagination="(total <= pageSize)"
@@ -70,13 +70,18 @@
         <PropertyColumn Property="s => s.ClassId" Title="Class Id" />
         <PropertyColumn Property="s => s.ClassName" Title="Class Name" />
         <ActionColumn Title="Action" Class="d-flex justify-content-center align-items-center gap-2">
-            <Button Danger OnClick="@(() => OpenPopup("Delete", context))">Delete</Button>
-            <Button OnClick="@(() => OpenPopup("Update", context))">Update</Button>
-            <Button OnClick="@(() => OpenPopup("Details", context))">Details</Button>
+            <Popconfirm Title="Sure to delete?"
+                        OnConfirm="()=> DeleteStudentAsync(context.Id)"
+                        OkText="Yes"
+                        CancelText="No">
+                <Button Danger>Delete</Button>
+            </Popconfirm>
+            <Button OnClick="@(() => OpenPopup(context))">Update</Button>
+            <Button OnClick="@(() => OpenPopup(context, isDetails:true))">Details</Button>
         </ActionColumn>
     </Table>
 
-@if(!string.IsNullOrEmpty(popupStatus))
+@if(visible)
 {
-    <StudentPopup Student="student" ReloadStudents="@(() => LoadStudentsAsync())" OnClose="ClosePopup" Status=@popupStatus />
+    <StudentPopup Visible="visible" Student="student" ReloadStudents="LoadStudentsAsync" OnClose="ClosePopup" IsCreate="isCreate" IsDetails="isDetails" />
 }

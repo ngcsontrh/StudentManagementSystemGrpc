@@ -2,22 +2,22 @@
 @using Shared
 @rendermode InteractiveServer
 
-<Drawer Visible="@(isDrawerVisible)" Placement="right" Title="@($"{Status} Student")" OnClose="ClosePopup" Width="500">
+<Drawer Visible="@(Visible)" Placement="right" Title="@($"Student")" OnClose="ClosePopup" Width="500">
     <Form Model="@Student"
-          OnFinish="HandleOnSubmit"
+          OnFinish="@(IsDetails ? () => {} : async () => await CreateOrUpdateAsync())"
           ValidateMode=@FormValidateMode.Complex
           RequiredMark=FormRequiredMark.Required>
-        @if(Status != "Create")
+        @if(IsCreate)
         {
             <FormItem Label="ID">
                 <Input @bind-Value="Student.Id" Disabled />
             </FormItem>
         }
         <FormItem Label="Full Name">
-            <Input @bind-Value="Student.FullName" Disabled=@(Status == "Details") />
+            <Input @bind-Value="Student.FullName" Disabled=@(IsDetails) />
         </FormItem>
         <FormItem Label="Birthday">
-            <DatePicker @bind-Value="Student.Birthday" Format="dd/MM/yyyy" Disabled=@(Status == "Details") DefaultValue="DateTime.Now" />
+            <DatePicker @bind-Value="Student.Birthday" Format="dd/MM/yyyy" Disabled=@(IsDetails) DefaultValue="DateTime.Now" />
         </FormItem>
         <Flex Gap="small">
             <FormItem Label="Class">
@@ -26,10 +26,10 @@
                         ItemValue="c => c.Id"
                         ItemLabel="c => c.Name"
                         Style="width: 120px"
-                        Disabled=@(Status == "Details")>
+                        Disabled=@(IsDetails)>
                 </Select>
             </FormItem>
-            @if(Status != "Create")
+            @if(!IsCreate)
             {
                 <FormItem Label="Class Subject">
                     <Input TValue="string" @bind-Value="@context.ClassSubject" Disabled>
@@ -38,9 +38,9 @@
             }
         </Flex>
         <FormItem Label="Address">
-            <TextArea @bind-Value="Student.Address" MinRows="3" MaxRows="6" Disabled=@(Status == "Details" || Status == "Delete") />
+            <TextArea @bind-Value="Student.Address" MinRows="3" MaxRows="6" Disabled=@(IsDetails) />
         </FormItem>
-        @if (Status == "Details" || Status == "Delete")
+        @if (IsDetails)
         {
             <FormItem Label="Teacher ID">
                 <Input @bind-Value="Student.TeacherId" Disabled />
@@ -49,20 +49,11 @@
                 <Input @bind-Value="Student.TeacherFullName" Disabled />
             </FormItem>
             <FormItem Label="Teacher Birthday">
-                <DatePicker @bind-Value="Student.TeacherBirthday" Format="dd/MM/yyyy" Disabled=@(Status == "Details" || Status == "Delete") />
+                <DatePicker @bind-Value="Student.TeacherBirthday" Format="dd/MM/yyyy" Disabled=@(IsDetails) />
             </FormItem>
         }       
         <FormItem>
-            <Button Disabled=@(Status == "Details") Type="primary" HtmlType="submit">@Status</Button>
+            <Button Disabled=@(IsDetails) Type="primary" HtmlType="submit">Submit</Button>
         </FormItem>
     </Form>
 </Drawer>
-
-<Modal Title="Delete student"
-       @bind-Visible="@(isModalVisible)"
-        OnOk="() => DeleteStudentAsync()"    
-        OnCancel="ClosePopup"
-    >
-    <p>Are you sure to delete this student?</p>
-
-</Modal>
