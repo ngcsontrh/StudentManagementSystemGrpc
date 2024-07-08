@@ -64,14 +64,8 @@ namespace Client.Blazor.Components.Pages
 
         async Task LoadClassChart()
         {
-            var studentCountReply = await StudentService.GetStudentCountAsync(new Shared.Empty());
-            int total = studentCountReply.Total;
             var classChartReply = await ClassService.GetClassChartAsync(new Shared.Empty());
             data2 = Mapper.Map<List<ClassStudentCountDTO>>(classChartReply.ChartData);
-            for(int i = 0; i < data2.Count; i++)
-            {
-                data2[i].StudentPercentage = Math.Round((data2[i].NumberOfStudent / (double)total) * 100, 2);
-            }
         }
 
         void Config()
