@@ -8,7 +8,6 @@ namespace Client.Blazor.Mappers
     {
         public StudentMapper()
         {
-            CreateMap<StudentProfile, StudentProfileDTO>();
             CreateMap<PaginationRequest, SearchStudentDTO>();
 
             CreateMap<SearchStudentDTO, PaginationRequest>()
