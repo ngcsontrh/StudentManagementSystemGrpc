@@ -76,7 +76,7 @@
         </ActionColumn>
     </Table>
 
-@if(isVisible)
+@if(!string.IsNullOrEmpty(popupStatus))
 {
-    <StudentPopup IsVisible="isVisible" Student="student" ReloadStudents="@(() => LoadStudentsAsync())" OnClose="ClosePopup" Status=@popupStatus />
+    <StudentPopup Student="student" ReloadStudents="@(() => LoadStudentsAsync())" OnClose="ClosePopup" Status=@popupStatus />
 }

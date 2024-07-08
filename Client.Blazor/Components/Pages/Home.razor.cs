@@ -18,22 +18,20 @@ namespace Client.Blazor.Components.Pages
         public IMapper Mapper { get; set; } = null!;
 
         // models
-        private StudentProfileDTO? student;
+        private StudentProfileDTO? student = new StudentProfileDTO();
         SearchStudentDTO searchFields = new SearchStudentDTO();
-        private List<StudentProfileDTO>? students;
+        private List<StudentProfileDTO> students = null!;
 
         private int pageNumber = 1;
         private int pageSize = 10;
         int total; // total students in db
 
-        bool isVisible = false;
         string? popupStatus;
 
         private void OpenPopup(string status, StudentProfileDTO? student = null)
         {
             popupStatus = status;
             this.student = student ?? new StudentProfileDTO();
-            isVisible = true;
         }
 
         private async Task ClosePopup()
@@ -41,7 +39,6 @@ namespace Client.Blazor.Components.Pages
             await Task.Run(() =>
             {
                 popupStatus = null;
-                isVisible = false;
                 this.student = null;
             });
         }

@@ -12,9 +12,6 @@ namespace Client.Blazor.Components.Pages
         public StudentProfileDTO Student { get; set; } = null!;
 
         [Parameter]
-        public bool IsVisible { get; set; }
-
-        [Parameter]
         public string Status { get; set; } = null!;
 
         [Parameter]
@@ -35,12 +32,13 @@ namespace Client.Blazor.Components.Pages
         [Inject]
         public NotificationService Notification { get; set; } = null!;
 
-        List<ClassInfoDTO>? classes;
+        List<ClassInfoDTO> classes = new List<ClassInfoDTO>();
+        bool isDrawerVisible = false;
+        bool isModalVisible = false;
 
         private async Task ClosePopup()
         {
             await OnClose.InvokeAsync(Status);
-            IsVisible = false;
         }
 
         private async Task HandleOnSubmit()
@@ -112,6 +110,14 @@ namespace Client.Blazor.Components.Pages
         protected override async Task OnInitializedAsync()
         {
             await LoadClassesAsync();
+            if(Status == "Delete")
+            {
+                isModalVisible = true;
+            }
+            else
+            {
+                isDrawerVisible = true;
+            }
         }
     }
 }
