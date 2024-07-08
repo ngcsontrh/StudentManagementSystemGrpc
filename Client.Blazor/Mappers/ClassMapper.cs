@@ -11,8 +11,7 @@ namespace Client.Blazor.Mappers
             CreateMap<ClassInfo, ClassInfoDTO>();
             CreateMap<ClassInfoDTO, ClassInfo>();
 
-            CreateMap<ClassStudentCount, ClassStudentCountDTO>()
-                .ForMember(dest => dest.StudentPercentage, opt => opt.Ignore());
+            CreateMap<ClassStudentCount, ClassStudentCountDTO>();
         }
     }
 }

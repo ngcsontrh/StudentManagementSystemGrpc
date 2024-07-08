@@ -38,9 +38,12 @@ namespace Client.Blazor.Components.Pages
 
         private async Task ClosePopup()
         {
-            popupStatus = null;
-            isVisible = false;
-            this.student = null;
+            await Task.Run(() =>
+            {
+                popupStatus = null;
+                isVisible = false;
+                this.student = null;
+            });
         }
 
         private async Task LoadStudentsAsync()

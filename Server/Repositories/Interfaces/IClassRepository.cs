@@ -8,6 +8,6 @@ namespace Server.Repositories.Interfaces
         Task<List<Class>?> GetAllAsync();
         Task<Class?> GetAsync(int id);
         Task<bool> AnyAsync(int id);
-        Task<List<ClassChartDTO>> GetClassChartAsync();
+        Task<List<ClassStudentCountDTO>> GetClassChartAsync();
     }
 }

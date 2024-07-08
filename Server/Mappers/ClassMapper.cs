@@ -10,7 +10,7 @@ namespace Server.Mappers
         public ClassMapper()
         {
             CreateMap<Class, ClassInfo>();
-            CreateMap<ClassChartDTO, ClassStudentCount>();
+            CreateMap<ClassStudentCountDTO, ClassStudentCount>();
         }
     }
 }

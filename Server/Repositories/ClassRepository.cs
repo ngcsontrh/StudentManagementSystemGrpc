@@ -36,18 +36,19 @@ namespace Server.Repositories
             return exists;
         }
 
-        public async Task<List<ClassChartDTO>> GetClassChartAsync()
+        public async Task<List<ClassStudentCountDTO>> GetClassChartAsync()
         {
             List<Class> classes = await _session.Query<Class>().ToListAsync();
+            int studentsCount = await _session.Query<Student>().CountAsync();
             var query = from c in classes
                         join s in _session.Query<Student>() on c.Id equals s.StudentClass.Id
                         group s by c into g
-                        select new ClassChartDTO
+                        select new ClassStudentCountDTO
                         {
                             ClassName = g.Key.Name,
-                            NumberOfStudent = g.Count(),
+                            StudentPercentage = Math.Round((g.Count() / (double)studentsCount ) * 100, 2),
                         };
-            List<ClassChartDTO> chartData = query.ToList();
+            List<ClassStudentCountDTO> chartData = query.ToList();
 
             return chartData;
         }

@@ -23,7 +23,7 @@ namespace Shared
     public class ClassStudentCount
     {
         [DataMember(Order = 1)] public string ClassName { get; set; } = null!;
-        [DataMember(Order = 2)] public int NumberOfStudent { get; set; }
+        [DataMember(Order = 2)] public double StudentPercentage { get; set; }
     }
 
     [DataContract]

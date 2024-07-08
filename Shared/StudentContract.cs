@@ -31,9 +31,6 @@ namespace Shared
 
         [OperationContract]
         Task<StudentAgeChart> GetStudentAgeChartAsync(IdRequest classIdRequest, CallContext callContext = default);
-
-        [OperationContract]
-        Task<StudentCount> GetStudentCountAsync(Empty request, CallContext callContext = default);
     }
 
     [DataContract]

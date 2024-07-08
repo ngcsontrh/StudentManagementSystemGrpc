@@ -166,15 +166,5 @@ namespace Server.Services
 
             return studentAgeChart;
         }
-
-        public async Task<StudentCount> GetStudentCountAsync(Empty request, CallContext callContext = default)
-        {
-            int total = await _studentRepository.CountAsync();
-            StudentCount result = new StudentCount
-            {
-                Total = total
-            };
-            return result;
-        }
     }
 }   

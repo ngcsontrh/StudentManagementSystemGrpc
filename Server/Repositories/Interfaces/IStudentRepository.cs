@@ -12,6 +12,6 @@ namespace Server.Repositories.Interfaces
         Task UpdateAsync(Student student);
         Task DeleteAsync(Student student);
         Task<PageViewDTO<Student>> GetPaginationAsync(SearchStudentDTO searchStudent, int pagenNumber = 1, int pageSize = 10);
-        Task<List<StudentAgeChartDTO>> GetStudentAgesChartAsync(int classId = -1);
+        Task<List<StudentAgeDTO>> GetStudentAgesChartAsync(int classId = -1);
     }
 }

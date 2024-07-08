@@ -39,7 +39,7 @@ namespace Server.Mappers
                 .ForMember(dest => dest.PageNumber, opt => opt.Ignore())
                 .ForMember(dest => dest.PageSize, opt => opt.Ignore());
 
-            CreateMap<StudentAgeChartDTO, StudentAge>();
+            CreateMap<StudentAgeDTO, StudentAge>();
         }
     }
 }

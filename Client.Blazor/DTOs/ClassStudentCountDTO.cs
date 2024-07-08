@@ -2,8 +2,7 @@
 {
     public class ClassStudentCountDTO
     {
-        public string ClassName { get; set; } = null!;
-        public int NumberOfStudent { get; set; }
+        public string ClassName { get; set; } = null!;        
         public double StudentPercentage { get; set; }
     }
 }

@@ -84,16 +84,16 @@ namespace Client.Blazor.Repositories
             return result;
         }
 
-        public async Task<List<StudentAgeChartDTO>> GetStudentAgesChartAsync(int classId = -1)
+        public async Task<List<StudentAgeDTO>> GetStudentAgesChartAsync(int classId = -1)
         {
             var query = _session.Query<Student>();
             if (classId != -1)
             {
                 query = query.Where(s => s.StudentClass.Id == classId);
             }
-            List<StudentAgeChartDTO> result = await query
+            List<StudentAgeDTO> result = await query
                 .GroupBy(s => DateTime.Now.Year - s.Birthday.Year)
-                .Select(s => new StudentAgeChartDTO
+                .Select(s => new StudentAgeDTO
                 {
                     Age = s.Key,
                     NumberOfStudent = s.Count()
