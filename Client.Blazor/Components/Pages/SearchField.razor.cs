@@ -1,4 +1,5 @@
-﻿using Client.Blazor.DTOs;
+﻿using AutoMapper;
+using Client.Blazor.DTOs;
 using Microsoft.AspNetCore.Components;
 using Shared;
 
@@ -12,6 +13,9 @@ namespace Client.Blazor.Components.Pages
         [Inject]
         IClassService ClassService { get; set; } = null!;
 
+        [Inject]
+        IMapper Mapper { get; set; } = null!;
+
         [Parameter]
         public EventCallback<SearchStudentDTO> OnSearch {  get; set; }
 
@@ -22,12 +26,7 @@ namespace Client.Blazor.Components.Pages
         private async Task LoadClassesAsync()
         {
             var reply = await ClassService.GetAllClassesInfo(new Shared.Empty());
-            classes = reply.Classes!.Select(c => new ClassInfoDTO
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Subject = c.Subject,
-            }).ToList();
+            classes = Mapper.Map<List<ClassInfoDTO>>(reply.Classes);
         }
 
         private async Task HandleOnSearchAsync()
