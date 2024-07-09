@@ -70,7 +70,7 @@ namespace Shared
     public class MultipleStudentProfilesReply
     {
         [DataMember(Order = 1)] public List<StudentProfile>? Students { get; set; }
-        [DataMember(Order = 2)] public int Count { get; set; } = 0;
+        [DataMember(Order = 2)] public int Count { get; set; }
         [DataMember(Order = 3)] public string? Message { get; set; }
     }
 

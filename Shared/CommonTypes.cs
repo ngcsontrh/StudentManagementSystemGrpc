@@ -14,7 +14,7 @@ namespace Shared
     [DataContract]
     public class OperationReply
     {
-        [DataMember(Order = 1)] public bool Success { get; set; } = false;
+        [DataMember(Order = 1)] public bool Success { get; set; }
 
         [DataMember(Order = 2)] public string? Message { get; set; }
     }

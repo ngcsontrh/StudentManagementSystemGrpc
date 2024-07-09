@@ -35,26 +35,20 @@ namespace Shared
     [DataContract]
     public class ClassInfo
     {
-        [DataMember(Order = 1)]
-        public int Id { get; set; }
+        [DataMember(Order = 1)] public int Id { get; set; }
 
-        [DataMember(Order = 2)]
-        public string Name { get; set; } = null!;
+        [DataMember(Order = 2)] public string Name { get; set; } = null!;
 
-        [DataMember(Order = 3)]
-        public string Subject { get; set; } = null!;
+        [DataMember(Order = 3)] public string Subject { get; set; } = null!;
     }
 
     [DataContract]
     public class MultipleClassInfosReply
     {
-        [DataMember(Order = 1)]
-        public List<ClassInfo>? Classes { get; set; }
+        [DataMember(Order = 1)] public List<ClassInfo>? Classes { get; set; }
 
-        [DataMember(Order = 2)]
-        public int Count { get; set; } = 0;
+        [DataMember(Order = 2)] public int Count { get; set; } = 0;
 
-        [DataMember(Order = 3)]
-        public string? Message { get; set; }
+        [DataMember(Order = 3)] public string? Message { get; set; }
     }
 }
