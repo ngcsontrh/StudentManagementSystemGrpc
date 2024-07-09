@@ -29,7 +29,7 @@ namespace Client.ConsoleApp
 
             var studentController = serviceProvider.GetService<StudentController>()!;
 
-            await studentController.Index();
+            await studentController.IndexAsync();
         }
     }
 }

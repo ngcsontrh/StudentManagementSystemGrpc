@@ -8,7 +8,7 @@
 <PageTitle>Home</PageTitle>
 
 <div>
-    <SearchField OnSearch="OnSearch" />
+    <SearchField OnSearch="OnSearchAsync" />
 </div>
 
 <div class="d-flex justify-content-between align-items-center">
@@ -55,8 +55,8 @@
            Total="total"
            PageSize="pageSize"
            HidePagination="(total <= pageSize)"
-           OnPageIndexChange="HandlePageIndexChange"
-           OnPageSizeChange="HandlePageSizeChange">
+           OnPageIndexChange="HandlePageIndexChangeAsync"
+           OnPageSizeChange="HandlePageSizeChangeAsync">
         <ColumnDefinition Title="Index">
             @{
                 int index = students!.IndexOf(context) + 1 + ((pageNumber - 1) * pageSize);
@@ -83,5 +83,5 @@
 
 @if(visible)
 {
-    <StudentPopup Visible="visible" Student="student" ReloadStudents="LoadStudentsAsync" OnClose="ClosePopup" IsCreate="isCreate" IsDetails="isDetails" />
+    <StudentPopup Visible="visible" Student="student" ReloadStudents="LoadStudentsAsync" OnClose="ClosePopupAsync" IsCreate="isCreate" IsDetails="isDetails" />
 }

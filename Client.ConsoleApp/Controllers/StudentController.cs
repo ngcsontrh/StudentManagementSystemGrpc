@@ -23,7 +23,7 @@ namespace Client.ConsoleApp.Controllers
             _mapper = mapper;
         }
 
-        public async Task Index()
+        public async Task IndexAsync()
         {
             while(true)
             {
@@ -41,22 +41,22 @@ namespace Client.ConsoleApp.Controllers
                 switch (choice)
                 {
                     case 1:
-                        await GetAllProfilesAsync();
+                        await GetAllAsync();
                         break;
                     case 2:
-                        await AddNewStudent();
+                        await CreateAsync();
                         break;
                     case 3:
-                        await UpdateStudent();
+                        await UpdateAsync();
                         break;
                     case 4:
-                        await DeleteStudent();
+                        await DeleteAsync();
                         break;
                     case 5:
-                        await GetAllProfilesAsync(sortByName:true);
+                        await GetAllAsync(sortByName:true);
                         break;
                     case 6:
-                        await GetStudentDetailsById();
+                        await GetDetailsAsync();
                         break;
                     case 7:
                         return;
@@ -64,7 +64,7 @@ namespace Client.ConsoleApp.Controllers
             }
         }
 
-        public async Task GetAllProfilesAsync(bool sortByName = false)
+        public async Task GetAllAsync(bool sortByName = false)
         {
             var reply = await _studentService.GetAllProfilesAsync(new Empty());
 
@@ -91,7 +91,7 @@ namespace Client.ConsoleApp.Controllers
             }
         }
 
-        public async Task AddNewStudent()
+        public async Task CreateAsync()
         {
             StudentProfileDTO student = new StudentProfileDTO();
             Console.Write($"Nhap ten sinh vien: ");
@@ -118,7 +118,7 @@ namespace Client.ConsoleApp.Controllers
             }
         }
 
-        public async Task UpdateStudent()
+        public async Task UpdateAsync()
         {
             Console.Write("Nhap MSV sinh vien can chinh sua: ");
             int id = Convert.ToInt32(Console.ReadLine());
@@ -156,7 +156,7 @@ namespace Client.ConsoleApp.Controllers
             }
         }
 
-        public async Task DeleteStudent()
+        public async Task DeleteAsync()
         {
             Console.Write("Nhap MSV sinh vien can xoa: ");
             int deleteId = Convert.ToInt32(Console.ReadLine());
@@ -171,7 +171,7 @@ namespace Client.ConsoleApp.Controllers
             }
         }
 
-        public async Task GetStudentDetailsById()
+        public async Task GetDetailsAsync()
         {
             Console.Write("Nhap Id sinh vien can tim kiem: ");
             int id = Convert.ToInt32(Console.ReadLine());

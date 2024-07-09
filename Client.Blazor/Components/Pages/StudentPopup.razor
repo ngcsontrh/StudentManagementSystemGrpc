@@ -2,7 +2,7 @@
 @using Shared
 @rendermode InteractiveServer
 
-<Drawer Visible="@(Visible)" Placement="right" Title="@($"Student")" OnClose="ClosePopup" Width="500">
+<Drawer Visible="@(Visible)" Placement="right" Title="@($"Student")" OnClose="ClosePopupAsync" Width="500">
     <Form Model="@Student"
           OnFinish="@(IsDetails ? () => {} : async () => await CreateOrUpdateAsync())"
           ValidateMode=@FormValidateMode.Complex

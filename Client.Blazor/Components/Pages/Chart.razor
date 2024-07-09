@@ -8,13 +8,13 @@
                 @if (classes != null)
                 {
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" checked id="allClass" name="classRadio" value="@(-1)" onclick="@(() => LoadStudentAgeClass())">
+                        <input class="form-check-input" type="radio" checked id="allClass" name="classRadio" value="@(-1)" onclick="@(() => LoadStudentAgeClassAsync())">
                         <label class="form-check-label" for="allClass">All</label>
                     </div>
                     @foreach (var clazz in classes)
                     {
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" id="@($"class{clazz.Id}")" name="classRadio" value="@clazz.Id" onclick="@(() => LoadStudentAgeClass(clazz.Id))">
+                            <input class="form-check-input" type="radio" id="@($"class{clazz.Id}")" name="classRadio" value="@clazz.Id" onclick="@(() => LoadStudentAgeClassAsync(clazz.Id))">
                             <label class="form-check-label" for="@($"class{clazz.Id}")">@clazz.Name</label>
                         </div>
                     }

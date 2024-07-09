@@ -15,7 +15,7 @@ namespace Server.Services
             _classRepository = classRepository;
             _mapper = mapper;
         }
-        public async Task<MultipleClassInfosReply> GetAllClassesInfo(Empty request, CallContext context = default)
+        public async Task<MultipleClassInfosReply> GetAllClassesInfoAsync(Empty request, CallContext context = default)
         {
             MultipleClassInfosReply reply = new MultipleClassInfosReply();
             try

@@ -21,19 +21,19 @@ namespace Client.Blazor.Components.Pages
         public IMapper Mapper { get; set; } = null!;
 
         // models
-        private StudentProfileDTO? student = new StudentProfileDTO();
+        StudentProfileDTO? student = new StudentProfileDTO();
         SearchStudentDTO searchFields = new SearchStudentDTO();
-        private List<StudentProfileDTO> students = null!;
+        List<StudentProfileDTO> students = null!;
 
-        private int pageNumber = 1;
-        private int pageSize = 10;
+        int pageNumber = 1;
+        int pageSize = 10;
         int total; // total students in db
 
         bool isCreate = false;
         bool isDetails = false;
         bool visible = false;
 
-        private void OpenPopup(StudentProfileDTO? student = null, bool isCreate = false, bool isDetails = false)
+        void OpenPopup(StudentProfileDTO? student = null, bool isCreate = false, bool isDetails = false)
         {
             this.isCreate = isCreate;
             this.visible = true;
@@ -44,7 +44,7 @@ namespace Client.Blazor.Components.Pages
             }
         }
 
-        private async Task ClosePopup()
+        async Task ClosePopupAsync()
         {
             await Task.Run(() =>
             {
@@ -55,7 +55,7 @@ namespace Client.Blazor.Components.Pages
             });
         }
 
-        private async Task LoadStudentsAsync()
+        async Task LoadStudentsAsync()
         {
             var request = Mapper.Map<PaginationRequest>(searchFields);
             request.PageSize = pageSize;
@@ -86,7 +86,7 @@ namespace Client.Blazor.Components.Pages
             }
         }
 
-        private async Task DeleteStudentAsync(int id)
+        async Task DeleteStudentAsync(int id)
         {
             var reply = await StudentService.DeleteAsync(new IdRequest { Id = id });
             _ = Notification.Open(new NotificationConfig()
@@ -98,20 +98,20 @@ namespace Client.Blazor.Components.Pages
             await LoadStudentsAsync();
         }
 
-        private async Task HandlePageIndexChange(PaginationEventArgs args)
+        async Task HandlePageIndexChangeAsync(PaginationEventArgs args)
         {
             pageNumber = args.Page;
             await LoadStudentsAsync();
         }
 
-        private async Task HandlePageSizeChange(PaginationEventArgs args)
+        async Task HandlePageSizeChangeAsync(PaginationEventArgs args)
         {
             pageNumber = 1;
             pageSize = args.PageSize;
             await LoadStudentsAsync();
         }
 
-        private void OnSort(MenuItem menu)
+        void OnSort(MenuItem menu)
         {
             switch(menu.Key)
             {
@@ -136,7 +136,7 @@ namespace Client.Blazor.Components.Pages
             }
         }
 
-        private async Task OnSearch(SearchStudentDTO searchStudent)
+        async Task OnSearchAsync(SearchStudentDTO searchStudent)
         {
             pageNumber= 1;
             searchFields = searchStudent;

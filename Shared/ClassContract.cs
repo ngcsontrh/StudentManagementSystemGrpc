@@ -13,7 +13,7 @@ namespace Shared
     public interface IClassService
     {
         [OperationContract]
-        Task<MultipleClassInfosReply> GetAllClassesInfo(Empty request, CallContext context = default);
+        Task<MultipleClassInfosReply> GetAllClassesInfoAsync(Empty request, CallContext context = default);
 
         [OperationContract]
         Task<ClassChart> GetClassChartAsync(Empty request, CallContext callContext = default);

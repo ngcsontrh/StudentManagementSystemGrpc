@@ -23,13 +23,13 @@ namespace Client.Blazor.Components.Pages
 
         List<ClassInfoDTO>? classes;
 
-        private async Task LoadClassesAsync()
+        async Task LoadClassesAsync()
         {
-            var reply = await ClassService.GetAllClassesInfo(new Shared.Empty());
+            var reply = await ClassService.GetAllClassesInfoAsync(new Shared.Empty());
             classes = Mapper.Map<List<ClassInfoDTO>>(reply.Classes);
         }
 
-        private async Task HandleOnSearchAsync()
+        async Task HandleOnSearchAsync()
         {
             await OnSearch.InvokeAsync(studentFields);
         }

@@ -27,8 +27,8 @@ namespace Client.Blazor.Components.Pages
         List<ClassStudentCountDTO> data2 = null!;
 
         // config charts
-        private ColumnConfig config1 = null!;
-        private PieConfig config2 = null!;
+        ColumnConfig config1 = null!;
+        PieConfig config2 = null!;
 
         bool isFirstRender = true;
 
@@ -36,7 +36,7 @@ namespace Client.Blazor.Components.Pages
 
         async Task LoadClassesAsync()
         {
-            var reply = await ClassService.GetAllClassesInfo(new Shared.Empty());
+            var reply = await ClassService.GetAllClassesInfoAsync(new Shared.Empty());
             if (reply.Classes == null)
             {
                 _ = Notification.Open(new NotificationConfig()
@@ -52,7 +52,7 @@ namespace Client.Blazor.Components.Pages
             }
         }
 
-        async Task LoadStudentAgeClass(int classId = -1)
+        async Task LoadStudentAgeClassAsync(int classId = -1)
         {
             var reply = await StudentService.GetStudentAgeChartAsync(new IdRequest { Id = classId });
             data1 = Mapper.Map<List<StudentAgeDTO>>(reply.ChartData);
@@ -62,7 +62,7 @@ namespace Client.Blazor.Components.Pages
             }
         }
 
-        async Task LoadClassChart()
+        async Task LoadClassChartAsync()
         {
             var classChartReply = await ClassService.GetClassChartAsync(new Shared.Empty());
             data2 = Mapper.Map<List<ClassStudentCountDTO>>(classChartReply.ChartData);
@@ -115,8 +115,8 @@ namespace Client.Blazor.Components.Pages
         {
             Config();
             await LoadClassesAsync();
-            await LoadStudentAgeClass();
-            await LoadClassChart();
+            await LoadStudentAgeClassAsync();
+            await LoadClassChartAsync();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)

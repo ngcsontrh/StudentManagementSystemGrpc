@@ -27,20 +27,20 @@ namespace Client.Blazor.Components.Pages
         public EventCallback OnClose { get; set; }
 
         [Inject]
-        public IStudentService StudentService { get; set; } = null!;
+        IStudentService StudentService { get; set; } = null!;
 
         [Inject]
-        public IClassService ClassService { get; set; } = null!;
+        IClassService ClassService { get; set; } = null!;
 
         [Inject]
-        public IMapper Mapper { get; set; } = null!;
+        IMapper Mapper { get; set; } = null!;
 
         [Inject]
-        public NotificationService Notification { get; set; } = null!;
+        NotificationService Notification { get; set; } = null!;
 
         List<ClassInfoDTO> classes = new List<ClassInfoDTO>();
 
-        private async Task ClosePopup()
+        async Task ClosePopupAsync()
         {
             IsDetails = false;
             IsCreate = false;
@@ -50,10 +50,10 @@ namespace Client.Blazor.Components.Pages
 
         async Task LoadClassesAsync()
         {
-            var reply = await ClassService.GetAllClassesInfo(new Shared.Empty());
+            var reply = await ClassService.GetAllClassesInfoAsync(new Shared.Empty());
             if (reply.Classes == null)
             {
-                NotificationMessage(reply.Message, false);
+                _ = NotificationMessage(reply.Message, false);
             }
             else
             {
@@ -62,7 +62,7 @@ namespace Client.Blazor.Components.Pages
         }
         
 
-        private async Task CreateOrUpdateAsync()
+        async Task CreateOrUpdateAsync()
         {
             var student = Mapper.Map<StudentProfile>(Student);
             OperationReply reply = new OperationReply();
@@ -74,19 +74,20 @@ namespace Client.Blazor.Components.Pages
             {
                 reply = await StudentService.UpdateAsync(student);
             }
-            NotificationMessage(reply.Message, reply.Success);
+            _ = NotificationMessage(reply.Message, reply.Success);
             await ReloadStudents.InvokeAsync();
-            await ClosePopup();
+            await ClosePopupAsync();
         }
 
-        void NotificationMessage(string? message, bool isSuccess)
+        Task NotificationMessage(string? message, bool isSuccess)
         {
-           _ = Notification.Open(new NotificationConfig()
+            _ = Notification.Open(new NotificationConfig()
             {
                 Message = "Success",
                 Description = message != null ? message : IsCreate ? "Created" : "Updated",
                 NotificationType = isSuccess ? NotificationType.Success : NotificationType.Error
             });
+            return Task.CompletedTask;
         }
 
         protected override async Task OnInitializedAsync()
